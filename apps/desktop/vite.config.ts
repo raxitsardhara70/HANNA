@@ -6,7 +6,7 @@ import { defineConfig } from 'vite';
 const root = fileURLToPath(new URL('.', import.meta.url));
 
 export default defineConfig({
-  root,
+  root: resolve(root, 'renderer'),
   plugins: [react()],
   resolve: {
     alias: {
@@ -26,7 +26,7 @@ export default defineConfig({
   },
   build: {
     emptyOutDir: true,
-    outDir: 'dist/renderer',
+    outDir: resolve(root, 'dist/renderer'),
     rollupOptions: {
       input: resolve(root, 'renderer/index.html'),
     },

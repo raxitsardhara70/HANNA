@@ -20,7 +20,7 @@ export const createMainWindow = async (
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
-      preload: join(currentDirectory, '../../preload/index.js'),
+      preload: join(currentDirectory, '../preload/index.mjs'),
       sandbox: false,
     },
     width: 1180,
@@ -31,12 +31,14 @@ export const createMainWindow = async (
     logger.info('Main window ready');
   });
 
-  if (config.isDevelopment && process.env.VITE_DEV_SERVER_URL) {
-    await window.loadURL(process.env.VITE_DEV_SERVER_URL);
+  const developmentUrl = process.env.ELECTRON_RENDERER_URL ?? process.env.VITE_DEV_SERVER_URL;
+
+  if (config.isDevelopment && developmentUrl !== undefined) {
+    await window.loadURL(developmentUrl);
     window.webContents.openDevTools({ mode: 'detach' });
     return window;
   }
 
-  await window.loadFile(join(currentDirectory, '../../renderer/index.html'));
+  await window.loadFile(join(currentDirectory, '../renderer/index.html'));
   return window;
 };

@@ -31,5 +31,5 @@
     { "path": "../../packages/ipc" },
     { "path": "../../packages/ui" }
   ],
-  "include": ["main", "preload", "renderer", "components", "layouts", "pages", "hooks", "contexts", "stores", "styles", "ipc", "services", "utils", "types", "electron.vite.config.ts", "vite.config.ts"]
+  "include": ["main", "preload", "renderer", "components", "layouts", "pages", "hooks", "contexts", "stores", "styles", "ipc", "services", "utils", "types"]
 }

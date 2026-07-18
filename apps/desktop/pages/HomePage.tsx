@@ -1,4 +1,4 @@
-import type { AppBootstrapState } from '@desktop/types/runtime';
+import type { AppBootstrapState } from '../types/runtime';
 import styles from './HomePage.module.css';
 
 interface HomePageProps {

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { ShellLayout } from '@layouts/ShellLayout';
-import { HomePage } from '@pages/HomePage';
-import type { AppBootstrapState } from '@desktop/types/runtime';
+import { ShellLayout } from '../layouts/ShellLayout';
+import { HomePage } from '../pages/HomePage';
+import type { AppBootstrapState } from '../types/runtime';
 
 export const App = () => {
   const [state, setState] = useState<AppBootstrapState | null>(null);

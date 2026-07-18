@@ -20,7 +20,7 @@ export const createMainWindow = async (
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
-      preload: join(currentDirectory, '../preload/index.mjs'),
+      preload: join(currentDirectory, '../../preload/index.js'),
       sandbox: false,
     },
     width: 1180,
@@ -39,6 +39,6 @@ export const createMainWindow = async (
     return window;
   }
 
-  await window.loadFile(join(currentDirectory, '../renderer/index.html'));
+  await window.loadFile(join(currentDirectory, '../../renderer/index.html'));
   return window;
 };

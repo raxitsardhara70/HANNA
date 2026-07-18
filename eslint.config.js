@@ -11,6 +11,7 @@ export default tseslint.config(
       '**/dist-electron/**',
       '**/release/**',
       '**/node_modules/**',
+      'apps/desktop/*.mjs',
       'eslint.config.js',
       'scripts/**/*.mjs',
     ],

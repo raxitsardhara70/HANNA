@@ -1,41 +1,224 @@
 .shell {
   display: grid;
-  grid-template-columns: 248px minmax(0, 1fr);
+  grid-template-columns: 260px minmax(0, 1fr);
   min-height: 100vh;
-  background: #101418;
-  color: #edf2f7;
+  background: var(--shell-background);
+  color: var(--shell-text);
+  transition: grid-template-columns 180ms ease;
+}
+
+.shell[data-sidebar-collapsed='true'] {
+  grid-template-columns: 76px minmax(0, 1fr);
 }
 
 .sidebar {
-  border-right: 1px solid #26313c;
-  padding: 24px;
+  background: #0f141b;
+  border-right: 1px solid var(--shell-border);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  min-width: 0;
+  padding: 18px 14px;
 }
 
-.brand {
-  font-size: 24px;
-  font-weight: 700;
+.brandRow {
+  align-items: center;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 36px minmax(0, 1fr);
+  margin-bottom: 18px;
+}
+
+.brandMark {
+  align-items: center;
+  background: linear-gradient(135deg, #7dd3c7, #8aa4ff);
+  border-radius: 8px;
+  color: #081114;
+  display: inline-flex;
+  font-size: 16px;
+  font-weight: 800;
+  height: 36px;
+  justify-content: center;
+  width: 36px;
+}
+
+.brandText {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.brandText strong {
+  font-size: 15px;
   letter-spacing: 0;
-  margin-bottom: 32px;
+}
+
+.brandText span {
+  color: var(--shell-subtle);
+  font-size: 12px;
+}
+
+.shell[data-sidebar-collapsed='true'] .brandText {
+  display: none;
 }
 
 .nav {
+  align-content: start;
   display: grid;
+  gap: 4px;
+  min-height: 0;
+}
+
+.collapseButton {
+  align-items: center;
+  background: transparent;
+  border: 1px solid var(--shell-border);
+  border-radius: 8px;
+  color: var(--shell-muted);
+  cursor: pointer;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 20px minmax(0, 1fr);
+  min-height: 36px;
+  padding: 6px 10px;
+}
+
+.collapseButton:hover {
+  background: var(--shell-hover);
+  color: var(--shell-text);
+}
+
+.shell[data-sidebar-collapsed='true'] .collapseButton {
+  grid-template-columns: 20px;
+  justify-content: center;
+}
+
+.shell[data-sidebar-collapsed='true'] .collapseButton span:last-child {
+  display: none;
+}
+
+.workspace {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  min-width: 0;
+}
+
+.header {
+  align-items: center;
+  background: rgba(18, 24, 32, 0.94);
+  border-bottom: 1px solid var(--shell-border);
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  min-height: 72px;
+  padding: 12px 22px;
+}
+
+.titleBlock {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.breadcrumb {
+  color: var(--shell-subtle);
+  font-size: 12px;
+}
+
+.titleBlock h1 {
+  font-size: 20px;
+  letter-spacing: 0;
+  margin: 0;
+}
+
+.headerControls {
+  align-items: center;
+  display: flex;
   gap: 10px;
+  min-width: 0;
 }
 
-.nav a {
-  border-radius: 6px;
-  color: #aebdcc;
-  padding: 10px 12px;
-  text-decoration: none;
+.search,
+.modelIndicator,
+.connection,
+.iconButton {
+  align-items: center;
+  background: var(--shell-surface);
+  border: 1px solid var(--shell-border);
+  border-radius: 8px;
+  color: var(--shell-muted);
+  display: inline-flex;
+  font-size: 13px;
+  min-height: 36px;
+  padding: 0 12px;
 }
 
-.nav a:hover {
-  background: #1a222b;
-  color: #ffffff;
+.search {
+  min-width: 220px;
+}
+
+.connection::before {
+  background: #4ade80;
+  border-radius: 999px;
+  content: '';
+  height: 7px;
+  margin-right: 8px;
+  width: 7px;
+}
+
+.iconButton {
+  cursor: pointer;
+  justify-content: center;
+  padding: 0;
+  width: 36px;
+}
+
+.iconButton:hover {
+  background: var(--shell-hover);
+  color: var(--shell-text);
 }
 
 .content {
   min-width: 0;
-  padding: 32px;
+  overflow: auto;
+  padding: 28px;
+}
+
+.statusBar {
+  align-items: center;
+  background: #0f141b;
+  border-top: 1px solid var(--shell-border);
+  color: var(--shell-subtle);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 12px;
+  gap: 14px;
+  min-height: 30px;
+  padding: 5px 14px;
+}
+
+@media (max-width: 1120px) {
+  .header {
+    align-items: start;
+    grid-template-columns: 1fr;
+  }
+
+  .headerControls {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 860px) {
+  .shell,
+  .shell[data-sidebar-collapsed='true'] {
+    grid-template-columns: 76px minmax(0, 1fr);
+  }
+
+  .brandText,
+  .collapseButton span:last-child {
+    display: none;
+  }
+
+  .search {
+    min-width: 160px;
+  }
 }

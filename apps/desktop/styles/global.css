@@ -2,7 +2,25 @@
   box-sizing: border-box;
 }
 
+:root {
+  color-scheme: dark;
+  --shell-accent: #7dd3c7;
+  --shell-background: #0c1015;
+  --shell-border: #242c36;
+  --shell-border-strong: #344251;
+  --shell-hover: #171d25;
+  --shell-muted: #a7b1bd;
+  --shell-selected: #1b2530;
+  --shell-subtle: #788592;
+  --shell-surface: #121820;
+  --shell-surface-raised: #161d26;
+  --shell-surface-soft: #202a34;
+  --shell-text: #eef4f8;
+}
+
 body {
+  background: var(--shell-background);
+  color: var(--shell-text);
   margin: 0;
   min-width: 960px;
   font-family:
@@ -13,4 +31,8 @@ button,
 input,
 textarea {
   font: inherit;
+}
+
+button {
+  letter-spacing: 0;
 }

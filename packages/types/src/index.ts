@@ -1,6 +1,35 @@
 export type AppEnvironment = 'development' | 'test' | 'production';
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
+export type Platform =
+  | 'aix'
+  | 'android'
+  | 'darwin'
+  | 'freebsd'
+  | 'haiku'
+  | 'linux'
+  | 'netbsd'
+  | 'openbsd'
+  | 'sunos'
+  | 'win32'
+  | 'cygwin'
+  | 'browser';
+
+export type Architecture =
+  | 'arm'
+  | 'arm64'
+  | 'ia32'
+  | 'loong64'
+  | 'mips'
+  | 'mipsel'
+  | 'ppc'
+  | 'ppc64'
+  | 'riscv64'
+  | 's390'
+  | 's390x'
+  | 'x64'
+  | 'browser';
+
 export interface AppMetadata {
   readonly name: string;
   readonly version: string;
@@ -13,8 +42,8 @@ export interface RuntimeConfig {
 }
 
 export interface SystemSnapshot {
-  readonly platform: NodeJS.Platform;
-  readonly arch: NodeJS.Architecture;
+  readonly platform: Platform;
+  readonly arch: Architecture;
   readonly electronVersion: string;
   readonly nodeVersion: string;
 }

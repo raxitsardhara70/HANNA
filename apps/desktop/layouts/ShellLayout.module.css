@@ -1,0 +1,41 @@
+.shell {
+  display: grid;
+  grid-template-columns: 248px minmax(0, 1fr);
+  min-height: 100vh;
+  background: #101418;
+  color: #edf2f7;
+}
+
+.sidebar {
+  border-right: 1px solid #26313c;
+  padding: 24px;
+}
+
+.brand {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 0;
+  margin-bottom: 32px;
+}
+
+.nav {
+  display: grid;
+  gap: 10px;
+}
+
+.nav a {
+  border-radius: 6px;
+  color: #aebdcc;
+  padding: 10px 12px;
+  text-decoration: none;
+}
+
+.nav a:hover {
+  background: #1a222b;
+  color: #ffffff;
+}
+
+.content {
+  min-width: 0;
+  padding: 32px;
+}

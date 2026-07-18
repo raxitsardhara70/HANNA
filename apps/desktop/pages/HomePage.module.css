@@ -1,0 +1,63 @@
+.page {
+  display: grid;
+  gap: 28px;
+  max-width: 980px;
+}
+
+.header {
+  display: grid;
+  gap: 12px;
+}
+
+.kicker {
+  color: #76d2c4;
+  font-size: 13px;
+  font-weight: 700;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.header h1 {
+  font-size: 48px;
+  letter-spacing: 0;
+  line-height: 1;
+  margin: 0;
+}
+
+.summary {
+  color: #b9c4cf;
+  font-size: 18px;
+  line-height: 1.6;
+  margin: 0;
+  max-width: 680px;
+}
+
+.panel {
+  background: #151d25;
+  border: 1px solid #2b3845;
+  border-radius: 8px;
+  padding: 24px;
+}
+
+.statusGrid {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0;
+}
+
+.statusGrid div {
+  display: grid;
+  gap: 6px;
+}
+
+.statusGrid dt {
+  color: #91a0ae;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.statusGrid dd {
+  font-size: 16px;
+  margin: 0;
+}

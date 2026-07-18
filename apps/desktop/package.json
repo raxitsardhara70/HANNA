@@ -1,0 +1,30 @@
+{
+  "name": "@hanna/desktop",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/main/index.js",
+  "scripts": {
+    "build": "vite build",
+    "typecheck": "tsc -b --pretty false"
+  },
+  "dependencies": {
+    "@hanna/config": "0.1.0",
+    "@hanna/ipc": "0.1.0",
+    "@hanna/logger": "0.1.0",
+    "@hanna/shared": "0.1.0",
+    "@hanna/types": "0.1.0",
+    "@hanna/ui": "0.1.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.15",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-react": "^4.6.0",
+    "electron": "^43.1.1",
+    "typescript": "^5.8.3",
+    "vite": "^7.0.5"
+  }
+}

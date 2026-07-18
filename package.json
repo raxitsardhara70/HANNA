@@ -1,0 +1,39 @@
+{
+  "name": "hanna",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Production-grade AI desktop assistant.",
+  "author": "HANNA Contributors",
+  "type": "module",
+  "main": "apps/desktop/dist/main/index.js",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "npm run build:packages && tsc -b apps/desktop && npm run build --workspace=@hanna/desktop",
+    "build:packages": "tsc -b packages/types packages/utils packages/shared packages/logger packages/config packages/ipc packages/ui",
+    "dist": "npm run build && electron-builder --config electron-builder.yml --dir",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "typecheck": "npm run build:packages && tsc -b apps/desktop --pretty false",
+    "clean": "node scripts/clean.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.31.0",
+    "@types/node": "^24.0.15",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-react": "^4.6.0",
+    "electron": "^43.1.1",
+    "electron-builder": "^26.0.12",
+    "eslint": "^9.31.0",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "prettier": "^3.6.2",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.37.0",
+    "vite": "^7.0.5"
+  }
+}

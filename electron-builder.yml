@@ -1,0 +1,15 @@
+appId: com.hanna.desktop
+productName: HANNA
+directories:
+  output: release
+files:
+  - apps/desktop/dist/**
+  - package.json
+asar: true
+win:
+  target:
+    - nsis
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true

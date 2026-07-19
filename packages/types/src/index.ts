@@ -55,3 +55,7 @@ export interface HannaApi {
     readonly getSystemSnapshot: () => Promise<SystemSnapshot>;
   };
 }
+export interface AssistantResponse {
+  readonly text: string;
+}
+

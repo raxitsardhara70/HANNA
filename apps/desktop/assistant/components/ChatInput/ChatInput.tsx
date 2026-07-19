@@ -3,7 +3,7 @@ import { useState } from "react";
 import styles from "./ChatInput.module.css";
 
 import { useAIState } from "../../state/useAIState";
-import { simulateStreaming } from "../../utils/simulateStreaming";
+import { useAssistantProvider } from "../../providers/useAssistantProvider";
 
 export function ChatInput() {
 
@@ -15,30 +15,29 @@ export function ChatInput() {
         setState,
     } = useAIState();
 
+    const provider = useAssistantProvider();
+
     async function sendMessage() {
 
         const value = text.trim();
 
         if (!value) return;
 
-        addMessage({
-            id: crypto.randomUUID(),
-            role: "user",
-            content: value,
-            timestamp: Date.now(),
-        });
-
         setText("");
 
         setState("thinking");
 
-        await simulateStreaming(
-            "Hello! I am HANNA. Streaming is working correctly.",
-            addMessage,
-            updateMessage,
+        await provider.sendUserMessage(
+            value,
+            {
+                onUserMessage: addMessage,
+                onAssistantMessage: addMessage,
+                onAssistantUpdate: updateMessage,
+            },
         );
 
         setState("ready");
+
     }
 
     return (
@@ -50,7 +49,7 @@ export function ChatInput() {
                 onChange={e => setText(e.target.value)}
                 onKeyDown={e => {
                     if (e.key === "Enter") {
-                        sendMessage();
+                        void sendMessage();
                     }
                 }}
                 placeholder="Ask HANNA anything..."
@@ -58,7 +57,7 @@ export function ChatInput() {
             />
 
             <button
-                onClick={sendMessage}
+                onClick={() => void sendMessage()}
                 className={styles.button}
             >
                 Send

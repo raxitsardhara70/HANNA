@@ -29,3 +29,4 @@ npm run build
 ## Architecture
 
 HANNA uses a workspace monorepo with isolated packages and a desktop app. Electron main owns native process concerns, preload exposes a narrow bridge, and React renders the assistant interface. Shared package boundaries keep IPC, logging, configuration, and domain types reusable without coupling renderer code to Node internals.
+

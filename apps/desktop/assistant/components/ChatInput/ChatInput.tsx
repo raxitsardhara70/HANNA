@@ -1,25 +1,71 @@
+import { useState } from "react";
+
 import styles from "./ChatInput.module.css";
 
-export function ChatInput() {
-    return (
-        <footer className={styles.container}>
-            <button className={styles.iconButton} aria-label="Attach file">
-                +
-            </button>
+import { useAIState } from "../../state/useAIState";
+import { simulateStreaming } from "../../utils/simulateStreaming";
 
-            <textarea
+export function ChatInput() {
+
+    const [text, setText] = useState("");
+
+    const {
+        addMessage,
+        updateMessage,
+        setState,
+    } = useAIState();
+
+    async function sendMessage() {
+
+        const value = text.trim();
+
+        if (!value) return;
+
+        addMessage({
+            id: crypto.randomUUID(),
+            role: "user",
+            content: value,
+            timestamp: Date.now(),
+        });
+
+        setText("");
+
+        setState("thinking");
+
+        await simulateStreaming(
+            "Hello! I am HANNA. Streaming is working correctly.",
+            addMessage,
+            updateMessage,
+        );
+
+        setState("ready");
+    }
+
+    return (
+
+        <div className={styles.container}>
+
+            <input
+                value={text}
+                onChange={e => setText(e.target.value)}
+                onKeyDown={e => {
+                    if (e.key === "Enter") {
+                        sendMessage();
+                    }
+                }}
+                placeholder="Ask HANNA anything..."
                 className={styles.input}
-                placeholder="Message HANNA..."
-                rows={1}
             />
 
-            <button className={styles.clearButton}>
-                Clear
-            </button>
-
-            <button className={styles.sendButton}>
+            <button
+                onClick={sendMessage}
+                className={styles.button}
+            >
                 Send
             </button>
-        </footer>
+
+        </div>
+
     );
+
 }

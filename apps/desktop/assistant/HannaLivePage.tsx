@@ -1,5 +1,7 @@
 import styles from "./HannaLivePage.module.css";
 
+import { AIStateProvider } from "./state/AIStateContext";
+
 import { LeftPanel } from "./components/LeftPanel/LeftPanel";
 import { RightPanel } from "./components/RightPanel/RightPanel";
 import { AvatarCore } from "./components/AvatarCore/AvatarCore";
@@ -10,34 +12,38 @@ import { MicButton } from "./components/MicButton/MicButton";
 
 export function HannaLivePage() {
     return (
-        <div className={styles.page}>
-            <aside className={styles.leftPanel}>
-                <LeftPanel />
-            </aside>
+        <AIStateProvider>
+            <div className={styles.page}>
+                <aside className={styles.leftPanel}>
+                    <LeftPanel />
+                </aside>
 
-            <main className={styles.centerPanel}>
-                <AvatarCore />
+                <main className={styles.centerPanel}>
+                    <AvatarCore />
 
-                <h1 className={styles.title}>Good Evening</h1>
+                    <h1 className={styles.title}>
+                        Good Evening
+                    </h1>
 
-                <p className={styles.subtitle}>
-                    I'm HANNA. Ready whenever you are.
-                </p>
+                    <p className={styles.subtitle}>
+                        I'm HANNA. Ready whenever you are.
+                    </p>
 
-                <VoiceBar />
+                    <VoiceBar />
 
-                <ChatPanel />
-            </main>
+                    <ChatPanel />
+                </main>
 
-            <aside className={styles.rightPanel}>
-                <MicButton />
+                <aside className={styles.rightPanel}>
+                    <MicButton />
 
-                <RightPanel />
-            </aside>
+                    <RightPanel />
+                </aside>
 
-            <footer className={styles.bottomBar}>
-                <ChatInput />
-            </footer>
-        </div>
+                <footer className={styles.bottomBar}>
+                    <ChatInput />
+                </footer>
+            </div>
+        </AIStateProvider>
     );
 }

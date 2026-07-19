@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { HannaLivePage } from "../assistant/HannaLivePage";
 import { ShellLayout } from '../layouts/ShellLayout';
 import { HomePage } from '../pages/HomePage';
 import {
@@ -11,6 +12,7 @@ import type { AppBootstrapState } from '../types/runtime';
 
 const navigationItems: readonly NavigationItem[] = [
   { icon: 'DB', id: 'dashboard', label: 'Dashboard' },
+  { icon: 'AI', id: 'assistant', label: 'HANNA Live' },
   { icon: 'CH', id: 'chat', label: 'Chat' },
   { icon: 'AG', id: 'agents', label: 'Agents' },
   { icon: 'MO', id: 'models', label: 'Models' },
@@ -22,6 +24,18 @@ const navigationItems: readonly NavigationItem[] = [
 ];
 
 const pageDefinitions: Record<AppPageId, PageDefinition> = {
+  assistant: {
+  description: 'Interact with HANNA using voice, camera, screen sharing and real-time AI.',
+  eyebrow: 'Artificial Intelligence',
+  id: 'assistant',
+  metrics: [
+    { label: 'Assistant', value: 'Offline' },
+    { label: 'Voice', value: 'Ready' },
+    { label: 'Camera', value: 'Idle' },
+    { label: 'Mode', value: 'Live' },
+  ],
+  title: 'HANNA Live',
+},
   agents: {
     description: 'Prepare, inspect, and coordinate future specialist agent workflows.',
     eyebrow: 'Orchestration',
@@ -56,6 +70,7 @@ const pageDefinitions: Record<AppPageId, PageDefinition> = {
     ],
     title: 'Dashboard',
   },
+  
   logs: {
     description: 'Central visibility for future system events, diagnostics, and audit trails.',
     eyebrow: 'Diagnostics',
@@ -186,7 +201,11 @@ export const App = () => {
       runtime={state}
       shellState={shellState}
     >
-      <HomePage page={activePage} />
+      {shellState.selectedPage === 'assistant' ? (
+  <HannaLivePage />
+) : (
+  <HomePage page={activePage} />
+)}
     </ShellLayout>
   );
 };

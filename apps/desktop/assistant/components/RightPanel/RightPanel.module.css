@@ -1,0 +1,26 @@
+﻿:global(*){box-sizing:border-box;}
+
+h3{
+margin:0 0 20px;
+font-size:18px;
+color:#ffffff;
+}
+
+div{
+margin-bottom:18px;
+padding:14px;
+border-radius:14px;
+background:#111827;
+border:1px solid #23354d;
+}
+
+strong{
+display:block;
+color:#ffffff;
+margin-bottom:6px;
+}
+
+p{
+margin:0;
+color:#8da5c0;
+}

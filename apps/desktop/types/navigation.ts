@@ -1,5 +1,6 @@
   export type AppPageId =
   | 'dashboard'
+  | 'assistant'
   | 'chat'
   | 'agents'
   | 'models'

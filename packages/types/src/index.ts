@@ -48,14 +48,20 @@ export interface SystemSnapshot {
   readonly nodeVersion: string;
 }
 
+export interface AssistantResponse {
+  readonly text: string;
+}
+
 export interface HannaApi {
   readonly app: {
     readonly getMetadata: () => Promise<AppMetadata>;
     readonly getConfig: () => Promise<RuntimeConfig>;
     readonly getSystemSnapshot: () => Promise<SystemSnapshot>;
   };
-}
-export interface AssistantResponse {
-  readonly text: string;
-}
 
+  readonly assistant: {
+    readonly sendMessage: (
+      message: string,
+    ) => Promise<AssistantResponse>;
+  };
+}

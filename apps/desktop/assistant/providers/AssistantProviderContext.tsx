@@ -4,11 +4,11 @@ import {
 } from "react";
 
 import type { AssistantProvider } from "./AssistantProvider";
-import { mockAssistantProvider } from "./mockAssistantProvider";
+import { ipcAssistantProvider } from "./ipcAssistantProvider";
 
 export const AssistantProviderContext =
     createContext<AssistantProvider>(
-        mockAssistantProvider,
+        ipcAssistantProvider,
     );
 
 export function useAssistantProvider() {
@@ -16,3 +16,4 @@ export function useAssistantProvider() {
         AssistantProviderContext,
     );
 }
+

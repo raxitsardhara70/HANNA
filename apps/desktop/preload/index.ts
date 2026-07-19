@@ -6,7 +6,16 @@ const api: HannaApi = {
   app: {
     getConfig: () => ipcRenderer.invoke(ipcChannels.appGetConfig),
     getMetadata: () => ipcRenderer.invoke(ipcChannels.appGetMetadata),
-    getSystemSnapshot: () => ipcRenderer.invoke(ipcChannels.appGetSystemSnapshot),
+    getSystemSnapshot: () =>
+      ipcRenderer.invoke(ipcChannels.appGetSystemSnapshot),
+  },
+
+  assistant: {
+    sendMessage: (message: string) =>
+      ipcRenderer.invoke(
+        ipcChannels.assistantSendMessage,
+        message,
+      ),
   },
 };
 

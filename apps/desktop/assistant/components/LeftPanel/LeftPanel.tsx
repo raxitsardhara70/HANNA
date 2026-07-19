@@ -1,27 +1,34 @@
-﻿export const LeftPanel = () => {
+import styles from "./LeftPanel.module.css";
+
+const items = [
+    { title: "Assistant", value: "Offline" },
+    { title: "Voice Engine", value: "Ready" },
+    { title: "Camera", value: "Idle" },
+    { title: "Screen Share", value: "Disconnected" },
+    { title: "Memory", value: "Available" },
+    { title: "Reasoning", value: "Standby" }
+];
+
+export const LeftPanel = () => {
     return (
-        <>
-            <h3>Activity</h3>
-
-            <div>
-                <strong>Assistant</strong>
-                <p>Offline</p>
+        <div className={styles.panel}>
+            <div className={styles.header}>
+                <h2>Activity</h2>
+                <span>LIVE</span>
             </div>
 
-            <div>
-                <strong>Voice</strong>
-                <p>Ready</p>
-            </div>
+            <div className={styles.list}>
+                {items.map(item => (
+                    <div key={item.title} className={styles.card}>
+                        <div>
+                            <h4>{item.title}</h4>
+                            <p>{item.value}</p>
+                        </div>
 
-            <div>
-                <strong>Camera</strong>
-                <p>Idle</p>
+                        <div className={styles.dot}></div>
+                    </div>
+                ))}
             </div>
-
-            <div>
-                <strong>Screen</strong>
-                <p>Disconnected</p>
-            </div>
-        </>
+        </div>
     );
 };

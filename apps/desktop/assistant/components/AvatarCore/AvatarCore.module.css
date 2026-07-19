@@ -1,69 +1,70 @@
-﻿:global(*){box-sizing:border-box;}
-
-.outerRing{
-position:absolute;
-width:360px;
-height:360px;
-border-radius:50%;
-border:2px solid rgba(0,212,255,.18);
-animation:spin 30s linear infinite;
-}
-
-.middleRing{
-position:absolute;
-width:300px;
-height:300px;
-border-radius:50%;
-border:2px solid rgba(0,212,255,.35);
-animation:spinReverse 22s linear infinite;
-}
-
-.innerRing{
-position:absolute;
-width:240px;
-height:240px;
-border-radius:50%;
-border:2px solid #00e5ff;
-box-shadow:0 0 40px rgba(0,229,255,.45);
-animation:pulse 2.5s ease-in-out infinite;
-}
-
-.core{
-position:absolute;
-width:170px;
-height:170px;
-border-radius:50%;
+.wrapper{
+position:relative;
+width:340px;
+height:340px;
 display:flex;
 justify-content:center;
 align-items:center;
-background:#101826;
-box-shadow:0 0 35px rgba(0,212,255,.20);
+}
+
+.outerRing,
+.middleRing,
+.innerRing{
+position:absolute;
+border-radius:50%;
+border:1px solid rgba(0,212,255,.25);
+animation:spin 24s linear infinite;
+}
+
+.outerRing{
+width:340px;
+height:340px;
+}
+
+.middleRing{
+width:270px;
+height:270px;
+animation-direction:reverse;
+animation-duration:18s;
+}
+
+.innerRing{
+width:190px;
+height:190px;
+animation-duration:12s;
+}
+
+.core{
+width:130px;
+height:130px;
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
+background:radial-gradient(circle,#00d4ff,#0f172a);
+box-shadow:
+0 0 35px rgba(0,212,255,.55),
+0 0 90px rgba(0,212,255,.22);
+z-index:2;
 }
 
 .core span{
-font-size:38px;
+font-size:20px;
 font-weight:700;
-color:#00e5ff;
+color:white;
 letter-spacing:2px;
+}
+
+.glow{
+position:absolute;
+width:250px;
+height:250px;
+border-radius:50%;
+background:rgba(0,212,255,.08);
+filter:blur(45px);
 }
 
 @keyframes spin{
 from{transform:rotate(0deg);}
 to{transform:rotate(360deg);}
-}
-
-@keyframes spinReverse{
-from{transform:rotate(360deg);}
-to{transform:rotate(0deg);}
-}
-
-@keyframes pulse{
-0%,100%{
-transform:scale(1);
-box-shadow:0 0 25px rgba(0,229,255,.30);
-}
-50%{
-transform:scale(1.04);
-box-shadow:0 0 60px rgba(0,229,255,.70);
-}
 }

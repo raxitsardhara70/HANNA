@@ -1,42 +1,28 @@
-﻿import { LeftPanel } from "./components/LeftPanel/LeftPanel";
+import styles from "./HannaLivePage.module.css";
+
+import { LeftPanel } from "./components/LeftPanel/LeftPanel";
 import { RightPanel } from "./components/RightPanel/RightPanel";
 import { AvatarCore } from "./components/AvatarCore/AvatarCore";
 import { VoiceBar } from "./components/VoiceBar/VoiceBar";
-import styles from "./HannaLivePage.module.css";
 
-export const HannaLivePage = () => {
-    return (
-        <section className={styles.page}>
-            <div className={styles.background}></div>
-
-            <aside className={styles.leftPanel}>
+export function HannaLivePage() {    return (
+        <div className={styles.page}>
+            <aside className={styles.left}>
                 <LeftPanel />
             </aside>
 
-            <main className={styles.centerPanel}>
+            <main className={styles.center}>
+                <AvatarCore />
 
-                <div className={styles.avatarSection}>
-                    <AvatarCore />
-                </div>
+                <h1>Good Evening</h1>
+                <p>I'm HANNA. Ready whenever you are.</p>
 
-                <h1 className={styles.title}>
-                    Good Afternoon
-                </h1>
-
-                <p className={styles.subtitle}>
-                    At your service.
-                </p>
-
+                <VoiceBar />
             </main>
 
-            <aside className={styles.rightPanel}>
+            <aside className={styles.right}>
                 <RightPanel />
             </aside>
-
-            <footer className={styles.bottomBar}>
-                <VoiceBar />
-            </footer>
-
-        </section>
+        </div>
     );
-};
+}

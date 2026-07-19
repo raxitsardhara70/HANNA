@@ -31,12 +31,32 @@ box-shadow:0 0 30px rgba(0,212,255,.08);
 
 .centerPanel{
 display:flex;
-justify-content:center;
-align-items:center;
 flex-direction:column;
-gap:18px;
+gap:20px;
+overflow:hidden;
 }
 
+.centerPanel > :nth-child(5){
+flex:1;
+min-height:0;
+}
+
+.rightPanel{
+display:flex;
+flex-direction:column;
+gap:20px;
+align-items:center;
+padding:20px;
+overflow:auto;
+}
+
+.bottomBar{
+padding:12px 18px;
+}
+
+.bottomBar>*{
+width:100%;
+}
 .avatarSection{
 position:relative;
 width:360px;

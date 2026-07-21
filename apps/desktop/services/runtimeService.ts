@@ -1,21 +1,34 @@
 import type { AppBootstrapState } from '@desktop/types/runtime';
 
+const browserRuntimeState: AppBootstrapState = {
+  config: {
+    environment: 'development',
+    isDevelopment: true,
+    logLevel: 'info',
+  },
+  metadata: {
+    name: 'HANNA',
+    version: '0.1.0',
+  },
+  system: {
+    arch: 'browser',
+    electronVersion: 'browser',
+    nodeVersion: 'browser',
+    platform: 'browser',
+  },
+};
+
 export const loadRuntimeState = async (): Promise<AppBootstrapState> => {
   if (!window.hanna?.app) {
-    throw new Error('HANNA IPC is not available.');
+    return browserRuntimeState;
   }
 
-  const hanna = window.hanna;
-
-if (!hanna) {
-  throw new Error("HANNA preload API is unavailable.");
-}
-
-const [metadata, config, system] = await Promise.all([
-  hanna.app.getMetadata(),
-  hanna.app.getConfig(),
-  hanna.app.getSystemSnapshot(),
-]);
+  const { app } = window.hanna;
+  const [metadata, config, system] = await Promise.all([
+    app.getMetadata(),
+    app.getConfig(),
+    app.getSystemSnapshot(),
+  ]);
 
   return {
     metadata,

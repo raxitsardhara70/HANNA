@@ -1,13 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
-import { HannaLivePage } from "../assistant/HannaLivePage";
+import { HannaLivePage } from '../assistant/HannaLivePage';
 import { ShellLayout } from '../layouts/ShellLayout';
 import { HomePage } from '../pages/HomePage';
-import {
-  createInitialAppShellState,
-  selectPage,
-  toggleSidebar,
-} from '../stores/appShellStore';
+import { createInitialAppShellState, selectPage, toggleSidebar } from '../stores/appShellStore';
 import type { AppPageId, NavigationItem, PageDefinition } from '../types/navigation';
+import { loadRuntimeState } from '../services/runtimeService';
 import type { AppBootstrapState } from '../types/runtime';
 
 const navigationItems: readonly NavigationItem[] = [
@@ -25,17 +22,17 @@ const navigationItems: readonly NavigationItem[] = [
 
 const pageDefinitions: Record<AppPageId, PageDefinition> = {
   assistant: {
-  description: 'Interact with HANNA using voice, camera, screen sharing and real-time AI.',
-  eyebrow: 'Artificial Intelligence',
-  id: 'assistant',
-  metrics: [
-    { label: 'Assistant', value: 'Offline' },
-    { label: 'Voice', value: 'Ready' },
-    { label: 'Camera', value: 'Idle' },
-    { label: 'Mode', value: 'Live' },
-  ],
-  title: 'HANNA Live',
-},
+    description: 'Interact with HANNA using voice, camera, screen sharing and real-time AI.',
+    eyebrow: 'Artificial Intelligence',
+    id: 'assistant',
+    metrics: [
+      { label: 'Assistant', value: 'Offline' },
+      { label: 'Voice', value: 'Ready' },
+      { label: 'Camera', value: 'Idle' },
+      { label: 'Mode', value: 'Live' },
+    ],
+    title: 'HANNA Live',
+  },
   agents: {
     description: 'Prepare, inspect, and coordinate future specialist agent workflows.',
     eyebrow: 'Orchestration',
@@ -70,7 +67,7 @@ const pageDefinitions: Record<AppPageId, PageDefinition> = {
     ],
     title: 'Dashboard',
   },
-  
+
   logs: {
     description: 'Central visibility for future system events, diagnostics, and audit trails.',
     eyebrow: 'Diagnostics',
@@ -153,14 +150,10 @@ export const App = () => {
     let isMounted = true;
 
     const load = async (): Promise<void> => {
-      const [metadata, config, system] = await Promise.all([
-        window.hanna.app.getMetadata(),
-        window.hanna.app.getConfig(),
-        window.hanna.app.getSystemSnapshot(),
-      ]);
+      const runtimeState = await loadRuntimeState();
 
       if (isMounted) {
-        setState({ config, metadata, system });
+        setState(runtimeState);
       }
     };
 
@@ -195,17 +188,17 @@ export const App = () => {
     <ShellLayout
       currentTime={currentTime}
       navigationItems={navigationItems}
-      onNavigate={(pageId) => setShellState((current) => selectPage(current, pageId))}
-      onToggleSidebar={() => setShellState((current) => toggleSidebar(current))}
+      onNavigate={(pageId) => {
+        setShellState((current) => selectPage(current, pageId));
+      }}
+      onToggleSidebar={() => {
+        setShellState((current) => toggleSidebar(current));
+      }}
       pageTitle={activePage.title}
       runtime={state}
       shellState={shellState}
     >
-      {shellState.selectedPage === 'assistant' ? (
-  <HannaLivePage />
-) : (
-  <HomePage page={activePage} />
-)}
+      {shellState.selectedPage === 'assistant' ? <HannaLivePage /> : <HomePage page={activePage} />}
     </ShellLayout>
   );
 };

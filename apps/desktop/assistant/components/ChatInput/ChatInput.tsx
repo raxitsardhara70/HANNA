@@ -1,70 +1,54 @@
-import { useState } from "react";
+import { useState } from 'react';
 
-import styles from "./ChatInput.module.css";
+import styles from './ChatInput.module.css';
 
-import { useAIState } from "../../state/useAIState";
-import { useAssistantProvider } from "../../providers/useAssistantProvider";
+import { useAIState } from '../../state/useAIState';
+import { useAssistantProvider } from '../../providers/useAssistantProvider';
 
 export function ChatInput() {
+  const [text, setText] = useState('');
 
-    const [text, setText] = useState("");
+  const { addMessage, updateMessage, setState } = useAIState();
 
-    const {
-        addMessage,
-        updateMessage,
-        setState,
-    } = useAIState();
+  const provider = useAssistantProvider();
 
-    const provider = useAssistantProvider();
+  async function sendMessage() {
+    const value = text.trim();
 
-    async function sendMessage() {
+    if (!value) return;
 
-        const value = text.trim();
+    setText('');
 
-        if (!value) return;
+    setState('thinking');
 
-        setText("");
+    await provider.sendUserMessage(value, {
+      onUserMessage: addMessage,
+      onAssistantMessage: addMessage,
+      onAssistantUpdate: updateMessage,
+    });
 
-        setState("thinking");
+    setState('ready');
+  }
 
-        await provider.sendUserMessage(
-            value,
-            {
-                onUserMessage: addMessage,
-                onAssistantMessage: addMessage,
-                onAssistantUpdate: updateMessage,
-            },
-        );
+  return (
+    <div className={styles.container}>
+      <input
+        value={text}
+        onChange={(e) => {
+          setText(e.target.value);
+        }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            void sendMessage();
+          }
+        }}
+        placeholder="Ask HANNA anything..."
+        className={styles.input}
+      />
 
-        setState("ready");
-
-    }
-
-    return (
-
-        <div className={styles.container}>
-
-            <input
-                value={text}
-                onChange={e => setText(e.target.value)}
-                onKeyDown={e => {
-                    if (e.key === "Enter") {
-                        void sendMessage();
-                    }
-                }}
-                placeholder="Ask HANNA anything..."
-                className={styles.input}
-            />
-
-            <button
-                onClick={() => void sendMessage()}
-                className={styles.button}
-            >
-                Send
-            </button>
-
-        </div>
-
-    );
-
+      <button onClick={() => void sendMessage()} className={styles.button}>
+        Send
+      </button>
+    </div>
+  );
 }

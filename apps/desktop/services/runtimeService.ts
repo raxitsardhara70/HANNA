@@ -5,17 +5,12 @@ export const loadRuntimeState = async (): Promise<AppBootstrapState> => {
     throw new Error('HANNA IPC is not available.');
   }
 
-  const hanna = window.hanna;
-
-if (!hanna) {
-  throw new Error("HANNA preload API is unavailable.");
-}
-
-const [metadata, config, system] = await Promise.all([
-  hanna.app.getMetadata(),
-  hanna.app.getConfig(),
-  hanna.app.getSystemSnapshot(),
-]);
+  const { app } = window.hanna;
+  const [metadata, config, system] = await Promise.all([
+    app.getMetadata(),
+    app.getConfig(),
+    app.getSystemSnapshot(),
+  ]);
 
   return {
     metadata,

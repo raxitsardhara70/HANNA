@@ -42,7 +42,9 @@ export const ShellLayout = ({
             collapsed={shellState.sidebarCollapsed}
             item={item}
             key={item.id}
-            onSelect={() => onNavigate(item.id)}
+            onSelect={() => {
+              onNavigate(item.id);
+            }}
             selected={item.id === shellState.selectedPage}
           />
         ))}
@@ -72,7 +74,13 @@ export const ShellLayout = ({
           <button className={styles.iconButton} type="button" aria-label="Theme settings">
             T
           </button>
-          <button className={styles.iconButton} onClick={() => onNavigate('settings')} type="button">
+          <button
+            className={styles.iconButton}
+            onClick={() => {
+              onNavigate('settings');
+            }}
+            type="button"
+          >
             S
           </button>
         </div>

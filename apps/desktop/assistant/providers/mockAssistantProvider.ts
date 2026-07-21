@@ -12,7 +12,7 @@ export const mockAssistantProvider: AssistantProvider = {
     });
 
     await simulateStreaming(
-      'Hello! I am HANNA. Streaming is working correctly.',
+      `HANNA received: ${text}`,
       (message) => {
         callbacks.onAssistantMessage(message);
       },

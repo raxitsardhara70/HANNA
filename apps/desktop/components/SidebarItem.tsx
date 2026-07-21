@@ -14,7 +14,9 @@ export const SidebarItem = ({ collapsed, item, onSelect, selected }: SidebarItem
     className={styles.item}
     data-collapsed={collapsed}
     data-selected={selected}
-    onClick={() => onSelect(item)}
+    onClick={() => {
+      onSelect(item);
+    }}
     title={collapsed ? item.label : undefined}
     type="button"
   >

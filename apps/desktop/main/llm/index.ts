@@ -1,5 +1,5 @@
-import { MockLlmProvider } from "./MockLlmProvider";
-import type { LlmProvider } from "./LlmProvider";
+import { MockLlmProvider } from "./MockLlmProvider.js";
+import type { LlmProvider } from "./LlmProvider.js";
 
 let provider: LlmProvider = new MockLlmProvider();
 
@@ -12,3 +12,4 @@ export function setLlmProvider(
 ): void {
     provider = llmProvider;
 }
+

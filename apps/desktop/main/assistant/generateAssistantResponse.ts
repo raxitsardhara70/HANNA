@@ -1,5 +1,5 @@
-import { conversationMemory } from "./conversationMemoryInstance";
-import { getLlmProvider } from "../llm";
+import { conversationMemory } from "./conversationMemoryInstance.js";
+import { getLlmProvider } from "../llm/index.js";
 
 export async function generateAssistantResponse(
     message: string,
@@ -15,3 +15,4 @@ export async function generateAssistantResponse(
 
     return response;
 }
+

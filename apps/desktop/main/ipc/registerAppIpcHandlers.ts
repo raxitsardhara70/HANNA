@@ -1,7 +1,7 @@
 import { app, ipcMain } from "electron";
 import { ipcChannels } from "@hanna/ipc";
 import { appMetadata } from "@hanna/shared";
-import { generateAssistantResponse } from "../assistant/generateAssistantResponse";
+import { generateAssistantResponse } from "../assistant/generateAssistantResponse.js";
 import type {
     RuntimeConfig,
     SystemSnapshot,
@@ -44,3 +44,4 @@ export const registerAppIpcHandlers = (config: RuntimeConfig): void => {
     });
 
 };
+

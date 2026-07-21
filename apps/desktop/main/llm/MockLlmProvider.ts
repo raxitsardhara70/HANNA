@@ -1,5 +1,5 @@
-import type { ConversationMessage } from "../assistant/ConversationMemory";
-import type { LlmProvider } from "./LlmProvider";
+import type { ConversationMessage } from "../assistant/ConversationMemory.js";
+import type { LlmProvider } from "./LlmProvider.js";
 
 export class MockLlmProvider implements LlmProvider {
 
@@ -15,3 +15,4 @@ export class MockLlmProvider implements LlmProvider {
     }
 
 }
+

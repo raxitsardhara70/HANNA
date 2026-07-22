@@ -4,6 +4,7 @@ import { ShellLayout } from '../layouts/ShellLayout';
 import { HomePage } from '../pages/HomePage';
 import { createInitialAppShellState, selectPage, toggleSidebar } from '../stores/appShellStore';
 import type { AppPageId, NavigationItem, PageDefinition } from '../types/navigation';
+import { loadRuntimeState } from '../services/runtimeService';
 import type { AppBootstrapState } from '../types/runtime';
 
 const navigationItems: readonly NavigationItem[] = [
@@ -149,14 +150,10 @@ export const App = () => {
     let isMounted = true;
 
     const load = async (): Promise<void> => {
-      const [metadata, config, system] = await Promise.all([
-        window.hanna.app.getMetadata(),
-        window.hanna.app.getConfig(),
-        window.hanna.app.getSystemSnapshot(),
-      ]);
+      const runtimeState = await loadRuntimeState();
 
       if (isMounted) {
-        setState({ config, metadata, system });
+        setState(runtimeState);
       }
     };
 

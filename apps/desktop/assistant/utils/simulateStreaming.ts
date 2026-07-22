@@ -1,47 +1,41 @@
-import type { ChatMessage } from "../types/assistant";
+const getAbortError = (signal: AbortSignal): Error =>
+  signal.reason instanceof Error ? signal.reason : new DOMException('Operation was cancelled.', 'AbortError');
 
-export async function simulateStreaming(
-    text: string,
-    onStart: (message: ChatMessage) => void,
-    onUpdate: (
-        id: string,
-        content: string,
-        streaming: boolean,
-    ) => void,
-) {
-
-    const id = crypto.randomUUID();
-
-    onStart({
-        id,
-        role: "assistant",
-        content: "",
-        timestamp: Date.now(),
-        streaming: true,
-    });
-
-    let current = "";
-
-    for (const character of text) {
-
-        current += character;
-
-        onUpdate(
-            id,
-            current,
-            true,
-        );
-
-        await new Promise(resolve =>
-            setTimeout(resolve, 18),
-        );
-
+const delay = (milliseconds: number, signal?: AbortSignal): Promise<void> =>
+  new Promise((resolve, reject) => {
+    if (signal?.aborted === true) {
+      reject(getAbortError(signal));
+      return;
     }
 
-    onUpdate(
-        id,
-        current,
-        false,
-    );
+    const timer = window.setTimeout(resolve, milliseconds);
 
+    signal?.addEventListener(
+      'abort',
+      () => {
+        window.clearTimeout(timer);
+        reject(getAbortError(signal));
+      },
+      { once: true },
+    );
+  });
+
+export async function simulateStreaming(
+  text: string,
+  onChunk: (chunk: string) => void,
+  options: {
+    readonly delayMs?: number;
+    readonly signal?: AbortSignal | undefined;
+  } = {},
+): Promise<void> {
+  const { delayMs = 18, signal } = options;
+
+  for (const character of text) {
+    if (signal?.aborted === true) {
+      throw getAbortError(signal);
+    }
+
+    onChunk(character);
+    await delay(delayMs, signal);
+  }
 }

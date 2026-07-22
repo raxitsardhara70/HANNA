@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 
 import styles from './ChatInput.module.css';
 
@@ -7,64 +7,33 @@ import { useAssistantProvider } from '../../providers/useAssistantProvider';
 
 export function ChatInput() {
   const [text, setText] = useState('');
-  const [isSending, setIsSending] = useState(false);
-  const activeRequestRef = useRef<AbortController | null>(null);
 
-  const {
-    addMessage,
-    appendToMessage,
-    finalizeMessage,
-    markMessageError,
-    setState,
-  } = useAIState();
+  const { addMessage, updateMessage, setState } = useAIState();
 
   const provider = useAssistantProvider();
 
   async function sendMessage() {
     const value = text.trim();
 
-    if (!value || isSending || activeRequestRef.current !== null) return;
-
-    const abortController = new AbortController();
-    activeRequestRef.current = abortController;
+    if (!value) return;
 
     setText('');
-    setIsSending(true);
+
     setState('thinking');
 
-    try {
-      await provider.sendUserMessage({
-        text: value,
-        signal: abortController.signal,
-        callbacks: {
-          onUserMessage: addMessage,
-          onAssistantMessage: addMessage,
-          onAssistantChunk: appendToMessage,
-          onAssistantComplete: finalizeMessage,
-          onAssistantCancelled: finalizeMessage,
-          onAssistantError: (id, content) => {
-            markMessageError(id, content);
-            setState('error');
-          },
-        },
-      });
+    await provider.sendUserMessage(value, {
+      onUserMessage: addMessage,
+      onAssistantMessage: addMessage,
+      onAssistantUpdate: updateMessage,
+    });
 
-      if (!abortController.signal.aborted) {
-        setState('ready');
-      }
-    } catch {
-      setState('error');
-    } finally {
-      activeRequestRef.current = null;
-      setIsSending(false);
-    }
+    setState('ready');
   }
 
   return (
     <div className={styles.container}>
       <input
         value={text}
-        disabled={isSending}
         onChange={(e) => {
           setText(e.target.value);
         }}
@@ -77,7 +46,7 @@ export function ChatInput() {
         className={styles.input}
       />
 
-      <button onClick={() => void sendMessage()} className={styles.button} disabled={isSending}>
+      <button onClick={() => void sendMessage()} className={styles.button}>
         Send
       </button>
     </div>

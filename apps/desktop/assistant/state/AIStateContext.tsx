@@ -1,9 +1,11 @@
-import { useCallback, useMemo, useState, type PropsWithChildren } from 'react';
+import { createContext, useCallback, useMemo, useState, type PropsWithChildren } from 'react';
 
 import { initialAssistantState } from './AIState';
-import { AIStateContext } from './AIStateContextValue';
 
 import type { AIState, AssistantContextValue, ChatMessage } from '../types/assistant';
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const AIStateContext = createContext<AssistantContextValue | null>(null);
 
 export function AIStateProvider({ children }: PropsWithChildren) {
   const [state, setState] = useState<AIState>(initialAssistantState.state);
@@ -16,20 +18,6 @@ export function AIStateProvider({ children }: PropsWithChildren) {
     setMessages((previous) => [...previous, message]);
   }, []);
 
-  const appendToMessage = useCallback((id: string, chunk: string) => {
-    setMessages((previous) =>
-      previous.map((message) =>
-        message.id === id
-          ? {
-              ...message,
-              content: `${message.content}${chunk}`,
-              streaming: true,
-            }
-          : message,
-      ),
-    );
-  }, []);
-
   const updateMessage = useCallback((id: string, content: string, streaming = false) => {
     setMessages((previous) =>
       previous.map((message) =>
@@ -38,34 +26,6 @@ export function AIStateProvider({ children }: PropsWithChildren) {
               ...message,
               content,
               streaming,
-            }
-          : message,
-      ),
-    );
-  }, []);
-
-  const finalizeMessage = useCallback((id: string) => {
-    setMessages((previous) =>
-      previous.map((message) =>
-        message.id === id
-          ? {
-              ...message,
-              streaming: false,
-            }
-          : message,
-      ),
-    );
-  }, []);
-
-  const markMessageError = useCallback((id: string, content: string) => {
-    setMessages((previous) =>
-      previous.map((message) =>
-        message.id === id
-          ? {
-              ...message,
-              content,
-              error: true,
-              streaming: false,
             }
           : message,
       ),
@@ -84,23 +44,10 @@ export function AIStateProvider({ children }: PropsWithChildren) {
       setState,
       setMuted,
       addMessage,
-      appendToMessage,
       updateMessage,
-      finalizeMessage,
-      markMessageError,
       clearMessages,
     }),
-    [
-      state,
-      messages,
-      isMuted,
-      addMessage,
-      appendToMessage,
-      updateMessage,
-      finalizeMessage,
-      markMessageError,
-      clearMessages,
-    ],
+    [state, messages, isMuted, addMessage, updateMessage, clearMessages],
   );
 
   return <AIStateContext.Provider value={value}>{children}</AIStateContext.Provider>;

@@ -30,6 +30,7 @@ export function AIStateProvider({ children }: PropsWithChildren) {
     );
   }, []);
 
+
   const updateMessage = useCallback((id: string, content: string, streaming = false) => {
     setMessages((previous) =>
       previous.map((message) =>
@@ -72,6 +73,8 @@ export function AIStateProvider({ children }: PropsWithChildren) {
     );
   }, []);
 
+
+
   const clearMessages = useCallback(() => {
     setMessages([]);
   }, []);
@@ -101,6 +104,11 @@ export function AIStateProvider({ children }: PropsWithChildren) {
       markMessageError,
       clearMessages,
     ],
+
+      updateMessage,
+      clearMessages,
+    }),
+    [state, messages, isMuted, addMessage, updateMessage, clearMessages],
   );
 
   return <AIStateContext.Provider value={value}>{children}</AIStateContext.Provider>;

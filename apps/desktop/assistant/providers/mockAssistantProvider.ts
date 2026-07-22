@@ -6,6 +6,10 @@ const isAbortError = (error: unknown): boolean => error instanceof DOMException 
 
 export const mockAssistantProvider: AssistantProvider = {
   sendUserMessage: async ({ text, callbacks, signal }) => {
+=======
+
+export const mockAssistantProvider: AssistantProvider = {
+  sendUserMessage: async (text, callbacks) => {
     callbacks.onUserMessage({
       id: crypto.randomUUID(),
       role: 'user',
@@ -45,5 +49,15 @@ export const mockAssistantProvider: AssistantProvider = {
       );
       throw error;
     }
+
+    await simulateStreaming(
+      `HANNA received: ${text}`,
+      (message) => {
+        callbacks.onAssistantMessage(message);
+      },
+      (id, content, streaming) => {
+        callbacks.onAssistantUpdate(id, content, streaming);
+      },
+    );
   },
 };

@@ -4,6 +4,11 @@ const isAbortError = (error: unknown): boolean => error instanceof DOMException 
 
 export const ipcAssistantProvider: AssistantProvider = {
   sendUserMessage: async ({ text, callbacks, signal }) => {
+=======
+
+export const ipcAssistantProvider: AssistantProvider = {
+  async sendUserMessage(text, callbacks) {
+
     callbacks.onUserMessage({
       id: crypto.randomUUID(),
       role: 'user',
@@ -94,5 +99,14 @@ export const ipcAssistantProvider: AssistantProvider = {
     } finally {
       signal?.removeEventListener('abort', abortStream);
     }
+
+    const response = await window.hanna.assistant.sendMessage(text);
+
+    callbacks.onAssistantMessage({
+      id: crypto.randomUUID(),
+      role: 'assistant',
+      content: response.text,
+      timestamp: Date.now(),
+    });
   },
 };

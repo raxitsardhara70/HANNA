@@ -1,4 +1,6 @@
 import { useRef, useState } from 'react';
+=======
+import { useState } from 'react';
 
 import styles from './ChatInput.module.css';
 
@@ -16,6 +18,9 @@ export function ChatInput() {
     markMessageError,
     setState,
   } = useAIState();
+
+
+  const { addMessage, updateMessage, setState } = useAIState();
 
   const provider = useAssistantProvider();
 
@@ -55,6 +60,20 @@ export function ChatInput() {
     } finally {
       activeRequestRef.current = null;
     }
+
+    if (!value) return;
+
+    setText('');
+
+    setState('thinking');
+
+    await provider.sendUserMessage(value, {
+      onUserMessage: addMessage,
+      onAssistantMessage: addMessage,
+      onAssistantUpdate: updateMessage,
+    });
+
+    setState('ready');
   }
 
   return (

@@ -1,91 +1,61 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef } from 'react';
 
-import styles from "./ChatPanel.module.css";
+import styles from './ChatPanel.module.css';
 
-import { useAIState } from "../../state/useAIState";
+import { useAIState } from '../../state/useAIState';
 
 export function ChatPanel() {
+  const { messages, state } = useAIState();
 
-    const {
-        messages,
-        state,
-    } = useAIState();
+  const bottomRef = useRef<HTMLDivElement>(null);
 
-    const bottomRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({
+      behavior: 'smooth',
+    });
+  }, [messages]);
 
-    useEffect(() => {
-        bottomRef.current?.scrollIntoView({
-            behavior: "smooth",
-        });
-    }, [messages]);
+  return (
+    <section className={styles.panel}>
+      <header className={styles.header}>
+        <h2>Conversation</h2>
 
-    return (
-        <section className={styles.panel}>
+        <span>{state}</span>
+      </header>
 
-            <header className={styles.header}>
+      <div className={styles.messages}>
+        {messages.length === 0 && (
+          <div className={styles.empty}>
+            <h3>Start a conversation</h3>
 
-                <h2>Conversation</h2>
+            <p>Ask HANNA anything.</p>
+          </div>
+        )}
 
-                <span>{state}</span>
+        {messages.map((message) => (
+          <div
+            key={message.id}
+            className={`${styles.message ?? ''} ${
+              message.role === 'assistant' ? (styles.assistant ?? '') : (styles.user ?? '')
+            }`}
+          >
+            <div className={styles.avatar}>{message.role === 'assistant' ? 'H' : 'U'}</div>
 
-            </header>
+            <div>
+              <div className={styles.bubble}>{message.content}</div>
 
-            <div className={styles.messages}>
-
-                {messages.length === 0 && (
-
-                    <div className={styles.empty}>
-
-                        <h3>Start a conversation</h3>
-
-                        <p>
-                            Ask HANNA anything.
-                        </p>
-
-                    </div>
-
-                )}
-
-                {messages.map(message => (
-
-                    <div
-                        key={message.id}
-                        className={`${styles.message} ${
-                            message.role === "assistant"
-                                ? styles.assistant
-                                : styles.user
-                        }`}
-                    >
-
-                        <div className={styles.avatar}>
-                            {message.role === "assistant" ? "H" : "U"}
-                        </div>
-
-                        <div>
-
-                            <div className={styles.bubble}>
-                                {message.content}
-                            </div>
-
-                            <div className={styles.time}>
-                                {new Date(
-                                    message.timestamp
-                                ).toLocaleTimeString([],{
-                                    hour:"2-digit",
-                                    minute:"2-digit"
-                                })}
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                ))}
-
-                <div ref={bottomRef} />
-
+              <div className={styles.time}>
+                {new Date(message.timestamp).toLocaleTimeString([], {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}
+              </div>
             </div>
+          </div>
+        ))}
 
-        </section>
-    );
+        <div ref={bottomRef} />
+      </div>
+    </section>
+  );
 }

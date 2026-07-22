@@ -1,40 +1,35 @@
-export type AIState =
-    | "offline"
-    | "ready"
-    | "listening"
-    | "thinking"
-    | "speaking"
-    | "error";
+export type AIState = 'offline' | 'ready' | 'listening' | 'thinking' | 'speaking' | 'error';
 
 export interface ChatMessage {
-    id: string;
-    role: "user" | "assistant" | "system";
-    content: string;
-    timestamp: number;
-    streaming?: boolean;
+  id: string;
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  timestamp: number;
+  streaming?: boolean;
+  error?: boolean;
 }
 
 export interface AssistantContextState {
-    state: AIState;
-    messages: ChatMessage[];
-    isMuted: boolean;
+  state: AIState;
+  messages: ChatMessage[];
+  isMuted: boolean;
 }
 
 export interface AssistantContextActions {
-    setState: (state: AIState) => void;
-    setMuted: (value: boolean) => void;
+  setState: (state: AIState) => void;
+  setMuted: (value: boolean) => void;
 
-    addMessage: (message: ChatMessage) => void;
+  addMessage: (message: ChatMessage) => void;
 
-    updateMessage: (
-        id: string,
-        content: string,
-        streaming?: boolean,
-    ) => void;
+  appendToMessage: (id: string, chunk: string) => void;
 
-    clearMessages: () => void;
+  updateMessage: (id: string, content: string, streaming?: boolean) => void;
+
+  finalizeMessage: (id: string) => void;
+
+  markMessageError: (id: string, content: string) => void;
+
+  clearMessages: () => void;
 }
 
-export type AssistantContextValue =
-    AssistantContextState &
-    AssistantContextActions;
+export type AssistantContextValue = AssistantContextState & AssistantContextActions;

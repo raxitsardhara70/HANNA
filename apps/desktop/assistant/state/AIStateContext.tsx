@@ -16,6 +16,21 @@ export function AIStateProvider({ children }: PropsWithChildren) {
     setMessages((previous) => [...previous, message]);
   }, []);
 
+  const appendToMessage = useCallback((id: string, chunk: string) => {
+    setMessages((previous) =>
+      previous.map((message) =>
+        message.id === id
+          ? {
+              ...message,
+              content: `${message.content}${chunk}`,
+              streaming: true,
+            }
+          : message,
+      ),
+    );
+  }, []);
+
+
   const updateMessage = useCallback((id: string, content: string, streaming = false) => {
     setMessages((previous) =>
       previous.map((message) =>
@@ -30,6 +45,36 @@ export function AIStateProvider({ children }: PropsWithChildren) {
     );
   }, []);
 
+  const finalizeMessage = useCallback((id: string) => {
+    setMessages((previous) =>
+      previous.map((message) =>
+        message.id === id
+          ? {
+              ...message,
+              streaming: false,
+            }
+          : message,
+      ),
+    );
+  }, []);
+
+  const markMessageError = useCallback((id: string, content: string) => {
+    setMessages((previous) =>
+      previous.map((message) =>
+        message.id === id
+          ? {
+              ...message,
+              content,
+              error: true,
+              streaming: false,
+            }
+          : message,
+      ),
+    );
+  }, []);
+
+
+
   const clearMessages = useCallback(() => {
     setMessages([]);
   }, []);
@@ -42,6 +87,24 @@ export function AIStateProvider({ children }: PropsWithChildren) {
       setState,
       setMuted,
       addMessage,
+      appendToMessage,
+      updateMessage,
+      finalizeMessage,
+      markMessageError,
+      clearMessages,
+    }),
+    [
+      state,
+      messages,
+      isMuted,
+      addMessage,
+      appendToMessage,
+      updateMessage,
+      finalizeMessage,
+      markMessageError,
+      clearMessages,
+    ],
+
       updateMessage,
       clearMessages,
     }),

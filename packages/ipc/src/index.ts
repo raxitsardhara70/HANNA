@@ -3,6 +3,8 @@ import type {
   RuntimeConfig,
   SystemSnapshot,
   AssistantResponse,
+  AssistantStreamEvent,
+  AssistantStreamRequest,
 } from '@hanna/types';
 
 export const ipcChannels = {
@@ -10,6 +12,9 @@ export const ipcChannels = {
   appGetMetadata: 'app:get-metadata',
   appGetSystemSnapshot: 'app:get-system-snapshot',
   assistantSendMessage: 'assistant:send-message',
+  assistantStartStream: 'assistant:start-stream',
+  assistantStreamEvent: 'assistant:stream-event',
+  assistantCancelStream: 'assistant:cancel-stream',
 } as const;
 
 export interface IpcRequestMap {
@@ -29,10 +34,22 @@ export interface IpcRequestMap {
     readonly request: string;
     readonly response: AssistantResponse;
   };
+
+  readonly [ipcChannels.assistantStartStream]: {
+    readonly request: AssistantStreamRequest;
+    readonly response: null;
+  };
+
+  readonly [ipcChannels.assistantStreamEvent]: {
+    readonly response: AssistantStreamEvent;
+  };
+
+  readonly [ipcChannels.assistantCancelStream]: {
+    readonly request: string;
+    readonly response: null;
+  };
 }
 
 export type IpcChannel = keyof IpcRequestMap;
 
-export type IpcResponse<
-  TChannel extends IpcChannel
-> = IpcRequestMap[TChannel]['response'];
+export type IpcResponse<TChannel extends IpcChannel> = IpcRequestMap[TChannel]['response'];

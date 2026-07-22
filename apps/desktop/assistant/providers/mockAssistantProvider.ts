@@ -2,11 +2,13 @@ import type { AssistantProvider } from './AssistantProvider';
 
 import { simulateStreaming } from '../utils/simulateStreaming';
 
+
+
 const isAbortError = (error: unknown): boolean => error instanceof DOMException && error.name === 'AbortError';
 
 export const mockAssistantProvider: AssistantProvider = {
   sendUserMessage: async ({ text, callbacks, signal }) => {
-=======
+
 
 export const mockAssistantProvider: AssistantProvider = {
   sendUserMessage: async (text, callbacks) => {
@@ -16,6 +18,11 @@ export const mockAssistantProvider: AssistantProvider = {
       content: text,
       timestamp: Date.now(),
     });
+
+
+    await simulateStreaming(
+      'Hello! I am HANNA. Streaming is working correctly.',
+
 
     const assistantMessageId = crypto.randomUUID();
 
@@ -52,6 +59,7 @@ export const mockAssistantProvider: AssistantProvider = {
 
     await simulateStreaming(
       `HANNA received: ${text}`,
+
       (message) => {
         callbacks.onAssistantMessage(message);
       },

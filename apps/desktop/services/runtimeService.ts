@@ -19,9 +19,11 @@ const browserRuntimeState: AppBootstrapState = {
 };
 
 export const loadRuntimeState = async (): Promise<AppBootstrapState> => {
+
   if (!window.hanna?.app) {
     return browserRuntimeState;
   }
+
 
   const { app } = window.hanna;
   const [metadata, config, system] = await Promise.all([

@@ -18,13 +18,13 @@ export class ConversationManager {
   createConversation(options: CreateConversationOptions = {}): Conversation {
     const now = new Date();
     const conversation: Conversation = {
-      id: randomUUID(),
+      id: options.id ?? randomUUID(),
       title: normalizeTitle(options.title ?? DEFAULT_CONVERSATION_TITLE),
-      createdAt: now,
-      updatedAt: now,
-      messages: [],
+      createdAt: options.createdAt ?? now,
+      updatedAt: options.updatedAt ?? now,
+      messages: options.messages?.map((message) => cloneMessage(message)) ?? [],
       metadata: {
-        messageCount: 0,
+        messageCount: options.messages?.length ?? 0,
       },
     };
 
@@ -109,6 +109,18 @@ export class ConversationManager {
     this.currentConversationId = null;
   }
 
+  importConversations(conversations: readonly Conversation[], currentConversationId: string | null): void {
+    this.conversations.clear();
+
+    for (const conversation of conversations) {
+      this.saveConversation(conversation);
+    }
+
+    this.currentConversationId = currentConversationId !== null && this.conversations.has(currentConversationId)
+      ? currentConversationId
+      : this.firstConversationId();
+  }
+
   appendUserMessage(options: AppendMessageOptions): ConversationMessage {
     return this.appendMessage('user', options);
   }
@@ -183,6 +195,7 @@ export class ConversationManager {
 
     const updatedConversation: Conversation = {
       ...conversation,
+      title: conversation.messages.length === 0 && role === 'user' ? titleFromMessage(options.content) : conversation.title,
       updatedAt: new Date(),
       messages: [...conversation.messages, message],
       metadata: {
@@ -255,4 +268,14 @@ function cloneMessage(message: ConversationMessage): ConversationMessage {
   return {
     ...message,
   };
+}
+
+function titleFromMessage(content: string): string {
+  const normalized = content.trim().replace(/\s+/g, ' ');
+
+  if (normalized.length === 0) {
+    return DEFAULT_CONVERSATION_TITLE;
+  }
+
+  return normalized.length > 40 ? `${normalized.slice(0, 37)}...` : normalized;
 }

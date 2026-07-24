@@ -4,8 +4,10 @@ import { conversationManager } from './conversation/conversationManagerInstance.
 import { promptBuilder } from './prompt/promptBuilderInstance.js';
 import { streamText } from './streamText.js';
 
-export async function generateAssistantResponse(message: string): Promise<string> {
-  const conversation = conversationManager.currentConversation() ?? conversationManager.createConversation();
+export async function generateAssistantResponse(message: string, conversationId?: string): Promise<string> {
+  const conversation = conversationId === undefined
+    ? conversationManager.currentConversation() ?? conversationManager.createConversation()
+    : conversationManager.setCurrentConversation(conversationId);
 
   conversationManager.appendUserMessage({
     conversationId: conversation.id,
@@ -27,7 +29,13 @@ export async function generateAssistantResponse(message: string): Promise<string
 export async function* streamAssistantResponse(
   message: string,
   signal?: AbortSignal,
+  conversationId?: string,
 ): AsyncGenerator<string> {
+
+  const conversation = conversationId === undefined
+    ? conversationManager.currentConversation() ?? conversationManager.createConversation()
+    : conversationManager.setCurrentConversation(conversationId);
+
   const conversation = conversationManager.currentConversation() ?? conversationManager.createConversation();
 
   conversationManager.appendUserMessage({

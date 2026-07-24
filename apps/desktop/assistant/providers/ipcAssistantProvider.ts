@@ -1,9 +1,23 @@
 import type { AssistantProvider } from './AssistantProvider';
+import { toRenameConversationRequest } from './AssistantProvider';
 
 const isAbortError = (error: unknown): boolean => error instanceof DOMException && error.name === 'AbortError';
 
+const requireAssistantApi = () => {
+  if (!window.hanna?.assistant) {
+    throw new Error('HANNA assistant IPC is not available.');
+  }
+
+  return window.hanna.assistant;
+};
+
 export const ipcAssistantProvider: AssistantProvider = {
-  sendUserMessage: async ({ text, callbacks, signal }) => {
+  listConversations: () => requireAssistantApi().listConversations(),
+  createConversation: () => requireAssistantApi().createConversation(),
+  selectConversation: (conversationId) => requireAssistantApi().selectConversation(conversationId),
+  renameConversation: (conversationId, title) => requireAssistantApi().renameConversation(toRenameConversationRequest(conversationId, title)),
+  deleteConversation: (conversationId) => requireAssistantApi().deleteConversation(conversationId),
+  sendUserMessage: async ({ conversationId, text, callbacks, signal }) => {
     callbacks.onUserMessage({
       id: crypto.randomUUID(),
       role: 'user',
@@ -11,13 +25,8 @@ export const ipcAssistantProvider: AssistantProvider = {
       timestamp: Date.now(),
     });
 
-    if (!window.hanna?.assistant) {
-      throw new Error('HANNA assistant IPC is not available.');
-    }
-
     const assistantMessageIds: string[] = [];
-
-    const stream = window.hanna.assistant.streamMessage(text, {
+    const stream = requireAssistantApi().streamMessage(text, {
       onEvent: (event) => {
         if (event.type === 'streamStart') {
           assistantMessageIds[0] = event.messageId;
@@ -63,7 +72,7 @@ export const ipcAssistantProvider: AssistantProvider = {
         });
         callbacks.onAssistantError(fallbackMessageId, event.error);
       },
-    });
+    }, conversationId ?? undefined);
 
     const abortStream = (): void => {
       stream.cancel();
@@ -84,10 +93,7 @@ export const ipcAssistantProvider: AssistantProvider = {
 
       const assistantMessageId = assistantMessageIds[0];
       if (assistantMessageId !== undefined) {
-        callbacks.onAssistantError(
-          assistantMessageId,
-          error instanceof Error ? error.message : 'Unexpected assistant stream error.',
-        );
+        callbacks.onAssistantError(assistantMessageId, error instanceof Error ? error.message : 'Unexpected assistant stream error.');
       }
 
       throw error;

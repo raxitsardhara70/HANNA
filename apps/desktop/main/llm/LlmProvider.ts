@@ -1,9 +1,5 @@
-import type { ContextMessage } from '../assistant/context/ContextMessage.js';
+import type { LlmPrompt } from '../assistant/prompt/Prompt.js';
 
 export interface LlmProvider {
-  generate(messages: readonly ContextMessage[]): Promise<string>;
-import type { ConversationMessage } from '../assistant/conversation/Conversation.js';
-
-export interface LlmProvider {
-  generate(messages: readonly ConversationMessage[]): Promise<string>;
+  generate(prompt: LlmPrompt): Promise<string>;
 }

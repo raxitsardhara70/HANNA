@@ -15,6 +15,8 @@ export function ChatInput() {
     finalizeMessage,
     markMessageError,
     setState,
+    activeConversationId,
+    loadConversations,
   } = useAIState();
   const provider = useAssistantProvider();
 
@@ -31,6 +33,7 @@ export function ChatInput() {
 
     try {
       await provider.sendUserMessage({
+        conversationId: activeConversationId,
         text: value,
         signal: abortController.signal,
         callbacks: {
@@ -47,6 +50,7 @@ export function ChatInput() {
       });
 
       if (!abortController.signal.aborted) {
+        await loadConversations();
         setState('ready');
       }
     } catch {
@@ -72,7 +76,7 @@ export function ChatInput() {
         className={styles.input}
       />
 
-      <button onClick={() => void sendMessage()} className={styles.button}>
+      <button onClick={() => void sendMessage()} className={styles.sendButton}>
         Send
       </button>
     </div>

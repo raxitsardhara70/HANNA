@@ -17,8 +17,13 @@ const api: HannaApi = {
   },
 
   assistant: {
-    sendMessage: (message: string) => ipcRenderer.invoke(ipcChannels.assistantSendMessage, message),
-    streamMessage: (message: string, handlers: AssistantStreamHandlers): AssistantStreamController => {
+    listConversations: () => ipcRenderer.invoke(ipcChannels.conversationList),
+    createConversation: () => ipcRenderer.invoke(ipcChannels.conversationCreate),
+    selectConversation: (conversationId: string) => ipcRenderer.invoke(ipcChannels.conversationSelect, conversationId),
+    renameConversation: (request) => ipcRenderer.invoke(ipcChannels.conversationRename, request),
+    deleteConversation: (conversationId: string) => ipcRenderer.invoke(ipcChannels.conversationDelete, conversationId),
+    sendMessage: (message: string, conversationId?: string) => ipcRenderer.invoke(ipcChannels.assistantSendMessage, { message, conversationId }),
+    streamMessage: (message: string, handlers: AssistantStreamHandlers, conversationId?: string): AssistantStreamController => {
       const requestId = createRequestId();
 
       let resolveDone: () => void;
@@ -64,6 +69,7 @@ const api: HannaApi = {
       void ipcRenderer
         .invoke(ipcChannels.assistantStartStream, {
           message,
+          conversationId,
           requestId,
         })
         .catch((error: unknown) => {

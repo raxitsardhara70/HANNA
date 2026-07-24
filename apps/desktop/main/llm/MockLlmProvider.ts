@@ -1,4 +1,5 @@
 import type { ContextMessage } from '../assistant/context/ContextMessage.js';
+import type { ConversationMessage } from '../assistant/conversation/Conversation.js';
 import type { LlmProvider } from './LlmProvider.js';
 
 export class MockLlmProvider implements LlmProvider {

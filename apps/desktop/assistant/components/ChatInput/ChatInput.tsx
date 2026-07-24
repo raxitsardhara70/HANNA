@@ -9,6 +9,19 @@ export function ChatInput() {
   const { isStreaming, sendMessage, stopGeneration } = useAIState();
 
   const submitMessage = async (): Promise<void> => {
+
+  const {
+    addMessage,
+    appendToMessage,
+    finalizeMessage,
+    markMessageError,
+    setState,
+    activeConversationId,
+    loadConversations,
+  } = useAIState();
+  const provider = useAssistantProvider();
+
+  async function sendMessage() {
     const value = text.trim();
 
     if (value.length === 0 || isStreaming) {
@@ -18,6 +31,37 @@ export function ChatInput() {
     setText('');
     await sendMessage(value);
   };
+
+    setState('thinking');
+
+    try {
+      await provider.sendUserMessage({
+        conversationId: activeConversationId,
+        text: value,
+        signal: abortController.signal,
+        callbacks: {
+          onUserMessage: addMessage,
+          onAssistantMessage: addMessage,
+          onAssistantChunk: appendToMessage,
+          onAssistantComplete: finalizeMessage,
+          onAssistantCancelled: finalizeMessage,
+          onAssistantError: (id, content) => {
+            markMessageError(id, content);
+            setState('error');
+          },
+        },
+      });
+
+      if (!abortController.signal.aborted) {
+        await loadConversations();
+        setState('ready');
+      }
+    } catch {
+      setState('error');
+    } finally {
+      activeRequestRef.current = null;
+    }
+  }
 
   return (
     <div className={styles.container}>
@@ -45,6 +89,10 @@ export function ChatInput() {
           Send
         </button>
       )}
+
+      <button onClick={() => void sendMessage()} className={styles.sendButton}>
+        Send
+      </button>
     </div>
   );
 }

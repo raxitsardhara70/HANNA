@@ -41,6 +41,7 @@ export interface AssistantContextActions {
   retryLastMessage: () => Promise<void>;
   regenerateResponse: () => Promise<void>;
   copyResponse: (messageId: string) => Promise<void>;
+
   addMessage: (message: ChatMessage) => void;
   appendToMessage: (id: string, chunk: string) => void;
   updateMessage: (id: string, content: string, streaming?: boolean) => void;

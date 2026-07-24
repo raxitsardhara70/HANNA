@@ -1,19 +1,12 @@
-
-
 import { useRef, useState } from 'react';
-=======
-
-import { useState } from 'react';
 
 import styles from './ChatInput.module.css';
 
-import { useAIState } from '../../state/useAIState';
 import { useAssistantProvider } from '../../providers/useAssistantProvider';
+import { useAIState } from '../../state/useAIState';
 
 export function ChatInput() {
   const [text, setText] = useState('');
-
-
   const activeRequestRef = useRef<AbortController | null>(null);
 
   const {
@@ -23,18 +16,11 @@ export function ChatInput() {
     markMessageError,
     setState,
   } = useAIState();
-
-
-
-  const { addMessage, updateMessage, setState } = useAIState();
-
   const provider = useAssistantProvider();
 
   async function sendMessage() {
     const value = text.trim();
 
-
-=======
     if (!value || activeRequestRef.current !== null) return;
 
     const abortController = new AbortController();
@@ -68,21 +54,6 @@ export function ChatInput() {
     } finally {
       activeRequestRef.current = null;
     }
-
-
-    if (!value) return;
-
-    setText('');
-
-    setState('thinking');
-
-    await provider.sendUserMessage(value, {
-      onUserMessage: addMessage,
-      onAssistantMessage: addMessage,
-      onAssistantUpdate: updateMessage,
-    });
-
-    setState('ready');
   }
 
   return (

@@ -93,8 +93,6 @@ const startAssistantStream = async (
   }
 
   const abortController = new AbortController();
-  const messageId = crypto.randomUUID();
-
   const abortOnSenderDestroyed = (): void => {
     abortController.abort(createStreamCancelledError());
   };
@@ -106,44 +104,50 @@ const startAssistantStream = async (
     sender,
   });
 
-  sendStreamEvent(sender, {
-    messageId,
-    requestId: request.requestId,
-    timestamp: Date.now(),
-    type: 'streamStart',
-  });
+  let messageId: string | undefined;
 
   try {
+    for await (const update of streamAssistantResponse(request.message, abortController.signal, request.conversationId)) {
+      messageId = update.messageId;
+
+      if (update.type === 'start') {
+        sendStreamEvent(sender, {
+          messageId: update.messageId,
+          requestId: request.requestId,
+          timestamp: update.timestamp,
+          type: 'streamStart',
+        });
+        continue;
+      }
+
+
     for await (const chunk of streamAssistantResponse(request.message, abortController.signal, request.conversationId)) {
       sendStreamEvent(sender, {
-        chunk,
-        messageId,
+        chunk: update.chunk,
+        messageId: update.messageId,
         requestId: request.requestId,
         type: 'streamChunk',
       });
     }
 
-    sendStreamEvent(sender, {
-      messageId,
-      requestId: request.requestId,
-      type: 'streamComplete',
-    });
-  } catch (error) {
-    if (isAbortError(error)) {
+    if (messageId !== undefined) {
       sendStreamEvent(sender, {
         messageId,
         requestId: request.requestId,
-        type: 'streamCancelled',
+        type: 'streamComplete',
       });
+    }
+  } catch (error) {
+    if (isAbortError(error)) {
+      sendStreamEvent(sender, messageId === undefined
+        ? { requestId: request.requestId, type: 'streamCancelled' }
+        : { messageId, requestId: request.requestId, type: 'streamCancelled' });
       return;
     }
 
-    sendStreamEvent(sender, {
-      error: serializeError(error),
-      messageId,
-      requestId: request.requestId,
-      type: 'streamError',
-    });
+    sendStreamEvent(sender, messageId === undefined
+      ? { error: serializeError(error), requestId: request.requestId, type: 'streamError' }
+      : { error: serializeError(error), messageId, requestId: request.requestId, type: 'streamError' });
   } finally {
     await persistConversations();
     sender.removeListener('destroyed', abortOnSenderDestroyed);

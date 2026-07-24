@@ -6,4 +6,5 @@ export const initialAssistantState: AssistantContextState = {
   activeConversationId: null,
   messages: [],
   isMuted: false,
+  isStreaming: false,
 };

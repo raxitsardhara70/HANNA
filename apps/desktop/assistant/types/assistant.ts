@@ -25,6 +25,7 @@ export interface AssistantContextState {
   activeConversationId: string | null;
   messages: ChatMessage[];
   isMuted: boolean;
+  isStreaming: boolean;
 }
 
 export interface AssistantContextActions {
@@ -35,6 +36,12 @@ export interface AssistantContextActions {
   selectConversation: (conversationId: string) => Promise<void>;
   renameConversation: (conversationId: string, title: string) => Promise<void>;
   deleteConversation: (conversationId: string) => Promise<void>;
+  sendMessage: (text: string) => Promise<void>;
+  stopGeneration: () => void;
+  retryLastMessage: () => Promise<void>;
+  regenerateResponse: () => Promise<void>;
+  copyResponse: (messageId: string) => Promise<void>;
+
   addMessage: (message: ChatMessage) => void;
   appendToMessage: (id: string, chunk: string) => void;
   updateMessage: (id: string, content: string, streaming?: boolean) => void;

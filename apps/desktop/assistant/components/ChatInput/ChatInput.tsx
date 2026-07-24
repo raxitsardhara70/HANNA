@@ -1,13 +1,14 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 
 import styles from './ChatInput.module.css';
 
-import { useAssistantProvider } from '../../providers/useAssistantProvider';
 import { useAIState } from '../../state/useAIState';
 
 export function ChatInput() {
   const [text, setText] = useState('');
-  const activeRequestRef = useRef<AbortController | null>(null);
+  const { isStreaming, sendMessage, stopGeneration } = useAIState();
+
+  const submitMessage = async (): Promise<void> => {
 
   const {
     addMessage,
@@ -23,12 +24,14 @@ export function ChatInput() {
   async function sendMessage() {
     const value = text.trim();
 
-    if (!value || activeRequestRef.current !== null) return;
-
-    const abortController = new AbortController();
-    activeRequestRef.current = abortController;
+    if (value.length === 0 || isStreaming) {
+      return;
+    }
 
     setText('');
+    await sendMessage(value);
+  };
+
     setState('thinking');
 
     try {
@@ -64,17 +67,28 @@ export function ChatInput() {
     <div className={styles.container}>
       <input
         value={text}
-        onChange={(e) => {
-          setText(e.target.value);
+        disabled={isStreaming}
+        onChange={(event) => {
+          setText(event.target.value);
         }}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') {
-            void sendMessage();
+        onKeyDown={(event) => {
+          if (event.key === 'Enter') {
+            void submitMessage();
           }
         }}
-        placeholder="Ask HANNA anything..."
+        placeholder={isStreaming ? 'HANNA is responding...' : 'Ask HANNA anything...'}
         className={styles.input}
       />
+
+      {isStreaming ? (
+        <button type="button" onClick={stopGeneration} className={styles.stopButton}>
+          Stop
+        </button>
+      ) : (
+        <button type="button" onClick={() => void submitMessage()} className={styles.sendButton}>
+          Send
+        </button>
+      )}
 
       <button onClick={() => void sendMessage()} className={styles.sendButton}>
         Send

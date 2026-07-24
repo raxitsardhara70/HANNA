@@ -1,80 +1,50 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 
 import styles from './ChatInput.module.css';
 
-import { useAssistantProvider } from '../../providers/useAssistantProvider';
 import { useAIState } from '../../state/useAIState';
 
 export function ChatInput() {
   const [text, setText] = useState('');
-  const activeRequestRef = useRef<AbortController | null>(null);
+  const { isStreaming, sendMessage, stopGeneration } = useAIState();
 
-  const {
-    addMessage,
-    appendToMessage,
-    finalizeMessage,
-    markMessageError,
-    setState,
-  } = useAIState();
-  const provider = useAssistantProvider();
-
-  async function sendMessage() {
+  const submitMessage = async (): Promise<void> => {
     const value = text.trim();
 
-    if (!value || activeRequestRef.current !== null) return;
-
-    const abortController = new AbortController();
-    activeRequestRef.current = abortController;
+    if (value.length === 0 || isStreaming) {
+      return;
+    }
 
     setText('');
-    setState('thinking');
-
-    try {
-      await provider.sendUserMessage({
-        text: value,
-        signal: abortController.signal,
-        callbacks: {
-          onUserMessage: addMessage,
-          onAssistantMessage: addMessage,
-          onAssistantChunk: appendToMessage,
-          onAssistantComplete: finalizeMessage,
-          onAssistantCancelled: finalizeMessage,
-          onAssistantError: (id, content) => {
-            markMessageError(id, content);
-            setState('error');
-          },
-        },
-      });
-
-      if (!abortController.signal.aborted) {
-        setState('ready');
-      }
-    } catch {
-      setState('error');
-    } finally {
-      activeRequestRef.current = null;
-    }
-  }
+    await sendMessage(value);
+  };
 
   return (
     <div className={styles.container}>
       <input
         value={text}
-        onChange={(e) => {
-          setText(e.target.value);
+        disabled={isStreaming}
+        onChange={(event) => {
+          setText(event.target.value);
         }}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') {
-            void sendMessage();
+        onKeyDown={(event) => {
+          if (event.key === 'Enter') {
+            void submitMessage();
           }
         }}
-        placeholder="Ask HANNA anything..."
+        placeholder={isStreaming ? 'HANNA is responding...' : 'Ask HANNA anything...'}
         className={styles.input}
       />
 
-      <button onClick={() => void sendMessage()} className={styles.button}>
-        Send
-      </button>
+      {isStreaming ? (
+        <button type="button" onClick={stopGeneration} className={styles.stopButton}>
+          Stop
+        </button>
+      ) : (
+        <button type="button" onClick={() => void submitMessage()} className={styles.sendButton}>
+          Send
+        </button>
+      )}
     </div>
   );
 }

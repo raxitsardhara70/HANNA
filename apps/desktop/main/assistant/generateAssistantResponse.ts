@@ -1,54 +1,52 @@
-
-import { contextBuilder } from './context/contextBuilderInstance.js';
-
-
-import { streamText } from './streamText.js';
-import { conversationManager } from './conversation/conversationManagerInstance.js';
 import { getLlmProvider } from '../llm/index.js';
+import { contextBuilder } from './context/contextBuilderInstance.js';
+import { conversationManager } from './conversation/conversationManagerInstance.js';
+import { promptBuilder } from './prompt/promptBuilderInstance.js';
 
-export async function generateAssistantResponse(message: string): Promise<string> {
-  const conversation = conversationManager.currentConversation() ?? conversationManager.createConversation();
+export type AssistantResponseStreamUpdate =
+  | {
+      readonly type: 'start';
+      readonly messageId: string;
+      readonly timestamp: number;
+    }
+  | {
+      readonly type: 'chunk';
+      readonly messageId: string;
+      readonly chunk: string;
+    };
+
+export async function generateAssistantResponse(message: string, conversationId?: string): Promise<string> {
+  const conversation = resolveConversation(conversationId);
 
   conversationManager.appendUserMessage({
     conversationId: conversation.id,
     content: message,
   });
 
-
-  const context = contextBuilder.build({ conversationId: conversation.id });
-  const response = await getLlmProvider().generate(context);
-
-  const currentConversation = conversationManager.getConversation(conversation.id);
-
-  if (currentConversation === null) {
-    throw new Error(`Conversation not found: ${conversation.id}`);
-  }
-
-  const response = await getLlmProvider().generate(currentConversation.messages);
-
+  const prompt = promptBuilder.build({ messages: contextBuilder.build({ conversationId: conversation.id }) });
+  const generatedText = await getLlmProvider().generate(prompt);
 
   conversationManager.appendAssistantMessage({
     conversationId: conversation.id,
-    content: response,
+    content: generatedText,
   });
 
-  return response;
+  return generatedText;
 }
 
 export async function* streamAssistantResponse(
   message: string,
   signal?: AbortSignal,
-): AsyncGenerator<string> {
-  const conversation = conversationManager.currentConversation() ?? conversationManager.createConversation();
-
+  conversationId?: string,
+): AsyncGenerator<AssistantResponseStreamUpdate> {
+  const conversation = resolveConversation(conversationId);
 
   conversationManager.appendUserMessage({
     conversationId: conversation.id,
     content: message,
   });
 
-  const context = contextBuilder.build({ conversationId: conversation.id });
-  const response = await getLlmProvider().generate(context);
+  const prompt = promptBuilder.build({ messages: contextBuilder.build({ conversationId: conversation.id }) });
   const assistantMessage = conversationManager.appendAssistantMessage({
     conversationId: conversation.id,
     content: '',
@@ -56,8 +54,14 @@ export async function* streamAssistantResponse(
   });
   let streamedResponse = '';
 
+  yield {
+    messageId: assistantMessage.id,
+    timestamp: assistantMessage.timestamp,
+    type: 'start',
+  };
+
   try {
-    for await (const chunk of streamText(response, { signal })) {
+    for await (const chunk of getLlmProvider().stream(prompt, signal === undefined ? {} : { signal })) {
       streamedResponse += chunk;
       conversationManager.updateAssistantMessage({
         conversationId: conversation.id,
@@ -65,7 +69,11 @@ export async function* streamAssistantResponse(
         content: streamedResponse,
         streaming: true,
       });
-      yield chunk;
+      yield {
+        chunk,
+        messageId: assistantMessage.id,
+        type: 'chunk',
+      };
     }
   } finally {
     conversationManager.updateAssistantMessage({
@@ -75,43 +83,10 @@ export async function* streamAssistantResponse(
       streaming: false,
     });
   }
+}
 
-  conversationManager.appendUserMessage({
-    conversationId: conversation.id,
-    content: message,
-  });
-
-  const currentConversation = conversationManager.getConversation(conversation.id);
-
-  if (currentConversation === null) {
-    throw new Error(`Conversation not found: ${conversation.id}`);
-  }
-
-  const response = await getLlmProvider().generate(currentConversation.messages);
-  const assistantMessage = conversationManager.appendAssistantMessage({
-    conversationId: conversation.id,
-    content: '',
-    streaming: true,
-  });
-  let streamedResponse = '';
-
-  try {
-    for await (const chunk of streamText(response, { signal })) {
-      streamedResponse += chunk;
-      conversationManager.updateAssistantMessage({
-        conversationId: conversation.id,
-        messageId: assistantMessage.id,
-        content: streamedResponse,
-        streaming: true,
-      });
-      yield chunk;
-    }
-  } finally {
-    conversationManager.updateAssistantMessage({
-      conversationId: conversation.id,
-      messageId: assistantMessage.id,
-      content: streamedResponse,
-      streaming: false,
-    });
-  }
+function resolveConversation(conversationId: string | undefined) {
+  return conversationId === undefined
+    ? conversationManager.currentConversation() ?? conversationManager.createConversation()
+    : conversationManager.setCurrentConversation(conversationId);
 }

@@ -3,8 +3,11 @@ import type {
   RuntimeConfig,
   SystemSnapshot,
   AssistantResponse,
+  AssistantMessageRequest,
   AssistantStreamEvent,
   AssistantStreamRequest,
+  ConversationSnapshot,
+  RenameConversationRequest,
 } from '@hanna/types';
 
 export const ipcChannels = {
@@ -15,6 +18,11 @@ export const ipcChannels = {
   assistantStartStream: 'assistant:start-stream',
   assistantStreamEvent: 'assistant:stream-event',
   assistantCancelStream: 'assistant:cancel-stream',
+  conversationList: 'conversation:list',
+  conversationCreate: 'conversation:create',
+  conversationSelect: 'conversation:select',
+  conversationRename: 'conversation:rename',
+  conversationDelete: 'conversation:delete',
 } as const;
 
 export interface IpcRequestMap {
@@ -31,7 +39,7 @@ export interface IpcRequestMap {
   };
 
   readonly [ipcChannels.assistantSendMessage]: {
-    readonly request: string;
+    readonly request: AssistantMessageRequest;
     readonly response: AssistantResponse;
   };
 
@@ -48,6 +56,30 @@ export interface IpcRequestMap {
     readonly request: string;
     readonly response: null;
   };
+
+  readonly [ipcChannels.conversationList]: {
+    readonly response: ConversationSnapshot;
+  };
+
+  readonly [ipcChannels.conversationCreate]: {
+    readonly response: ConversationSnapshot;
+  };
+
+  readonly [ipcChannels.conversationSelect]: {
+    readonly request: string;
+    readonly response: ConversationSnapshot;
+  };
+
+  readonly [ipcChannels.conversationRename]: {
+    readonly request: RenameConversationRequest;
+    readonly response: ConversationSnapshot;
+  };
+
+  readonly [ipcChannels.conversationDelete]: {
+    readonly request: string;
+    readonly response: ConversationSnapshot;
+  };
+
 }
 
 export type IpcChannel = keyof IpcRequestMap;

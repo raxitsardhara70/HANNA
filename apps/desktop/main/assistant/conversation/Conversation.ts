@@ -22,7 +22,11 @@ export interface Conversation {
 }
 
 export interface CreateConversationOptions {
+  readonly id?: string;
   readonly title?: string;
+  readonly createdAt?: Date;
+  readonly updatedAt?: Date;
+  readonly messages?: readonly ConversationMessage[];
 }
 
 export interface AppendMessageOptions {

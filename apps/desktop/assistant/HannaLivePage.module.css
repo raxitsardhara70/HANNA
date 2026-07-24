@@ -127,3 +127,19 @@ border:1px solid #1b3958;
 font-size:20px;
 color:#90b3d8;
 }
+
+
+@media (max-width:1100px){
+.page{grid-template-columns:minmax(220px,260px) 1fr;grid-template-rows:1fr auto;padding:16px;gap:16px;}
+.rightPanel{display:none;}
+.bottomBar{grid-column:1/span 2;}
+.title{font-size:38px;}
+.subtitle{font-size:16px;}
+}
+
+@media (max-width:760px){
+.page{grid-template-columns:1fr;grid-template-rows:auto 1fr auto;}
+.leftPanel{max-height:260px;overflow:hidden;}
+.centerPanel{min-height:0;}
+.bottomBar{grid-column:1;}
+}

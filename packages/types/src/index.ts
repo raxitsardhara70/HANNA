@@ -48,6 +48,40 @@ export interface SystemSnapshot {
   readonly nodeVersion: string;
 }
 
+
+export type ConversationMessageRole = 'system' | 'user' | 'assistant';
+
+export interface ConversationMessageDto {
+  readonly id: string;
+  readonly role: ConversationMessageRole;
+  readonly content: string;
+  readonly timestamp: number;
+  readonly streaming: boolean;
+}
+
+export interface ConversationDto {
+  readonly id: string;
+  readonly title: string;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+  readonly messages: readonly ConversationMessageDto[];
+}
+
+export interface ConversationSnapshot {
+  readonly conversations: readonly ConversationDto[];
+  readonly activeConversationId: string | null;
+}
+
+export interface RenameConversationRequest {
+  readonly conversationId: string;
+  readonly title: string;
+}
+
+export interface AssistantMessageRequest {
+  readonly message: string;
+  readonly conversationId?: string;
+}
+
 export interface AssistantResponse {
   readonly text: string;
 }
@@ -55,6 +89,7 @@ export interface AssistantResponse {
 export interface AssistantStreamRequest {
   readonly requestId: string;
   readonly message: string;
+  readonly conversationId?: string;
 }
 
 export interface AssistantStreamStartEvent {
@@ -115,10 +150,16 @@ export interface HannaApi {
   };
 
   readonly assistant: {
-    readonly sendMessage: (message: string) => Promise<AssistantResponse>;
+    readonly listConversations: () => Promise<ConversationSnapshot>;
+    readonly createConversation: () => Promise<ConversationSnapshot>;
+    readonly selectConversation: (conversationId: string) => Promise<ConversationSnapshot>;
+    readonly renameConversation: (request: RenameConversationRequest) => Promise<ConversationSnapshot>;
+    readonly deleteConversation: (conversationId: string) => Promise<ConversationSnapshot>;
+    readonly sendMessage: (message: string, conversationId?: string) => Promise<AssistantResponse>;
     readonly streamMessage: (
       message: string,
       handlers: AssistantStreamHandlers,
+      conversationId?: string,
     ) => AssistantStreamController;
   };
 }

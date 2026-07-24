@@ -1,8 +1,8 @@
-import type { ConversationMessage } from '../assistant/ConversationMemory.js';
+import type { ContextMessage } from '../assistant/context/ContextMessage.js';
 import type { LlmProvider } from './LlmProvider.js';
 
 export class MockLlmProvider implements LlmProvider {
-  generate(messages: readonly ConversationMessage[]): Promise<string> {
+  generate(messages: readonly ContextMessage[]): Promise<string> {
     const last = [...messages].reverse().find((message) => message.role === 'user');
 
     return Promise.resolve(`HANNA received: ${last?.content ?? ''}`);

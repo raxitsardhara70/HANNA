@@ -1,13 +1,23 @@
-import { conversationMemory } from './conversationMemoryInstance.js';
+import { contextBuilder } from './context/contextBuilderInstance.js';
 import { streamText } from './streamText.js';
+import { conversationManager } from './conversation/conversationManagerInstance.js';
 import { getLlmProvider } from '../llm/index.js';
 
 export async function generateAssistantResponse(message: string): Promise<string> {
-  conversationMemory.addUserMessage(message);
+  const conversation = conversationManager.currentConversation() ?? conversationManager.createConversation();
 
-  const response = await getLlmProvider().generate(conversationMemory.getMessages());
+  conversationManager.appendUserMessage({
+    conversationId: conversation.id,
+    content: message,
+  });
 
-  conversationMemory.addAssistantMessage(response);
+  const context = contextBuilder.build({ conversationId: conversation.id });
+  const response = await getLlmProvider().generate(context);
+
+  conversationManager.appendAssistantMessage({
+    conversationId: conversation.id,
+    content: response,
+  });
 
   return response;
 }
@@ -16,15 +26,39 @@ export async function* streamAssistantResponse(
   message: string,
   signal?: AbortSignal,
 ): AsyncGenerator<string> {
-  conversationMemory.addUserMessage(message);
+  const conversation = conversationManager.currentConversation() ?? conversationManager.createConversation();
 
-  const response = await getLlmProvider().generate(conversationMemory.getMessages());
+  conversationManager.appendUserMessage({
+    conversationId: conversation.id,
+    content: message,
+  });
+
+  const context = contextBuilder.build({ conversationId: conversation.id });
+  const response = await getLlmProvider().generate(context);
+  const assistantMessage = conversationManager.appendAssistantMessage({
+    conversationId: conversation.id,
+    content: '',
+    streaming: true,
+  });
   let streamedResponse = '';
 
-  for await (const chunk of streamText(response, { signal })) {
-    streamedResponse += chunk;
-    yield chunk;
+  try {
+    for await (const chunk of streamText(response, { signal })) {
+      streamedResponse += chunk;
+      conversationManager.updateAssistantMessage({
+        conversationId: conversation.id,
+        messageId: assistantMessage.id,
+        content: streamedResponse,
+        streaming: true,
+      });
+      yield chunk;
+    }
+  } finally {
+    conversationManager.updateAssistantMessage({
+      conversationId: conversation.id,
+      messageId: assistantMessage.id,
+      content: streamedResponse,
+      streaming: false,
+    });
   }
-
-  conversationMemory.addAssistantMessage(streamedResponse);
 }

@@ -31,9 +31,12 @@ export async function* streamAssistantResponse(
   signal?: AbortSignal,
   conversationId?: string,
 ): AsyncGenerator<string> {
+
   const conversation = conversationId === undefined
     ? conversationManager.currentConversation() ?? conversationManager.createConversation()
     : conversationManager.setCurrentConversation(conversationId);
+
+  const conversation = conversationManager.currentConversation() ?? conversationManager.createConversation();
 
   conversationManager.appendUserMessage({
     conversationId: conversation.id,

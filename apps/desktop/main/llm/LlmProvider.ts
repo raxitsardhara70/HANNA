@@ -1,9 +1,5 @@
-import type { ConversationMessage } from "../assistant/ConversationMemory";
+import type { ConversationMessage } from '../assistant/conversation/Conversation.js';
 
 export interface LlmProvider {
-
-    generate(
-        messages: readonly ConversationMessage[],
-    ): Promise<string>;
-
+  generate(messages: readonly ConversationMessage[]): Promise<string>;
 }

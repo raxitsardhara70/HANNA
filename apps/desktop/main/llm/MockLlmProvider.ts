@@ -1,4 +1,4 @@
-import type { ConversationMessage } from '../assistant/ConversationMemory.js';
+import type { ConversationMessage } from '../assistant/conversation/Conversation.js';
 import type { LlmProvider } from './LlmProvider.js';
 
 export class MockLlmProvider implements LlmProvider {

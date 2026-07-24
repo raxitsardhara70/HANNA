@@ -1,13 +1,27 @@
-import { conversationMemory } from './conversationMemoryInstance.js';
 import { streamText } from './streamText.js';
+import { conversationManager } from './conversation/conversationManagerInstance.js';
 import { getLlmProvider } from '../llm/index.js';
 
 export async function generateAssistantResponse(message: string): Promise<string> {
-  conversationMemory.addUserMessage(message);
+  const conversation = conversationManager.currentConversation() ?? conversationManager.createConversation();
 
-  const response = await getLlmProvider().generate(conversationMemory.getMessages());
+  conversationManager.appendUserMessage({
+    conversationId: conversation.id,
+    content: message,
+  });
 
-  conversationMemory.addAssistantMessage(response);
+  const currentConversation = conversationManager.getConversation(conversation.id);
+
+  if (currentConversation === null) {
+    throw new Error(`Conversation not found: ${conversation.id}`);
+  }
+
+  const response = await getLlmProvider().generate(currentConversation.messages);
+
+  conversationManager.appendAssistantMessage({
+    conversationId: conversation.id,
+    content: response,
+  });
 
   return response;
 }
@@ -16,15 +30,44 @@ export async function* streamAssistantResponse(
   message: string,
   signal?: AbortSignal,
 ): AsyncGenerator<string> {
-  conversationMemory.addUserMessage(message);
+  const conversation = conversationManager.currentConversation() ?? conversationManager.createConversation();
 
-  const response = await getLlmProvider().generate(conversationMemory.getMessages());
-  let streamedResponse = '';
+  conversationManager.appendUserMessage({
+    conversationId: conversation.id,
+    content: message,
+  });
 
-  for await (const chunk of streamText(response, { signal })) {
-    streamedResponse += chunk;
-    yield chunk;
+  const currentConversation = conversationManager.getConversation(conversation.id);
+
+  if (currentConversation === null) {
+    throw new Error(`Conversation not found: ${conversation.id}`);
   }
 
-  conversationMemory.addAssistantMessage(streamedResponse);
+  const response = await getLlmProvider().generate(currentConversation.messages);
+  const assistantMessage = conversationManager.appendAssistantMessage({
+    conversationId: conversation.id,
+    content: '',
+    streaming: true,
+  });
+  let streamedResponse = '';
+
+  try {
+    for await (const chunk of streamText(response, { signal })) {
+      streamedResponse += chunk;
+      conversationManager.updateAssistantMessage({
+        conversationId: conversation.id,
+        messageId: assistantMessage.id,
+        content: streamedResponse,
+        streaming: true,
+      });
+      yield chunk;
+    }
+  } finally {
+    conversationManager.updateAssistantMessage({
+      conversationId: conversation.id,
+      messageId: assistantMessage.id,
+      content: streamedResponse,
+      streaming: false,
+    });
+  }
 }

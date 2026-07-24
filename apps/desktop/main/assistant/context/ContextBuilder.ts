@@ -44,7 +44,7 @@ export class ContextBuilder {
           `Current session: ${session.title}`,
           `Session id: ${session.id}`,
           `Conversation id: ${session.conversationId}`,
-          `Session messages: ${session.messageCount}`,
+          `Session messages: ${String(session.messageCount)}`,
           `Session created: ${session.createdAt.toISOString()}`,
           `Session updated: ${session.updatedAt.toISOString()}`,
         ].join('\n'),
@@ -71,7 +71,7 @@ export class ContextBuilder {
 
   buildMemoryContext(): readonly ContextMessage[] {
     return this.dependencies.workingMemory.getMessages().map((message, index) => ({
-      id: `memory:${index}`,
+      id: `memory:${String(index)}`,
       role: message.role,
       content: message.content,
       priority: contextPriority.memory,

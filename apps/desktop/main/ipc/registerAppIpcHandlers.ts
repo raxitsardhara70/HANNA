@@ -49,6 +49,8 @@ const persistConversations = async (): Promise<ConversationSnapshot> => {
   return snapshot;
 };
 
+let conversationsLoadPromise: Promise<void> | null = null;
+
 const loadConversations = async (): Promise<void> => {
   const snapshot = await conversationRepository.load();
   conversationManager.importConversations(snapshot.conversations, snapshot.activeConversationId);
@@ -57,6 +59,11 @@ const loadConversations = async (): Promise<void> => {
     conversationManager.createConversation();
     await persistConversations();
   }
+};
+
+const ensureConversationsLoaded = (): Promise<void> => {
+  conversationsLoadPromise ??= loadConversations();
+  return conversationsLoadPromise;
 };
 
 
@@ -88,6 +95,8 @@ const startAssistantStream = async (
   sender: WebContents,
   request: AssistantStreamRequest,
 ): Promise<void> => {
+  await ensureConversationsLoaded();
+
   if (activeStreams.has(request.requestId)) {
     throw new Error(`Assistant stream already exists for request ${request.requestId}.`);
   }
@@ -120,8 +129,6 @@ const startAssistantStream = async (
         continue;
       }
 
-
-    for await (const chunk of streamAssistantResponse(request.message, abortController.signal, request.conversationId)) {
       sendStreamEvent(sender, {
         chunk: update.chunk,
         messageId: update.messageId,
@@ -129,6 +136,8 @@ const startAssistantStream = async (
         type: 'streamChunk',
       });
     }
+
+    await persistConversations();
 
     if (messageId !== undefined) {
       sendStreamEvent(sender, {
@@ -138,6 +147,8 @@ const startAssistantStream = async (
       });
     }
   } catch (error) {
+    await persistConversations();
+
     if (isAbortError(error)) {
       sendStreamEvent(sender, messageId === undefined
         ? { requestId: request.requestId, type: 'streamCancelled' }
@@ -149,7 +160,6 @@ const startAssistantStream = async (
       ? { error: serializeError(error), requestId: request.requestId, type: 'streamError' }
       : { error: serializeError(error), messageId, requestId: request.requestId, type: 'streamError' });
   } finally {
-    await persistConversations();
     sender.removeListener('destroyed', abortOnSenderDestroyed);
     cleanupStream(request.requestId);
   }
@@ -166,7 +176,7 @@ const cancelAssistantStream = (requestId: string): void => {
 };
 
 export const registerAppIpcHandlers = (config: RuntimeConfig): void => {
-  void loadConversations();
+  void ensureConversationsLoaded();
   ipcMain.handle(ipcChannels.appGetMetadata, () => appMetadata);
 
   ipcMain.handle(ipcChannels.appGetConfig, () => config);
@@ -182,26 +192,30 @@ export const registerAppIpcHandlers = (config: RuntimeConfig): void => {
   );
 
   ipcMain.handle(ipcChannels.conversationList, async () => {
-    await loadConversations();
+    await ensureConversationsLoaded();
     return getConversationSnapshot();
   });
 
   ipcMain.handle(ipcChannels.conversationCreate, async () => {
+    await ensureConversationsLoaded();
     conversationManager.createConversation({ title: '' });
     return persistConversations();
   });
 
   ipcMain.handle(ipcChannels.conversationSelect, async (_event, conversationId: string) => {
+    await ensureConversationsLoaded();
     conversationManager.setCurrentConversation(conversationId);
     return persistConversations();
   });
 
   ipcMain.handle(ipcChannels.conversationRename, async (_event, request: RenameConversationRequest) => {
+    await ensureConversationsLoaded();
     conversationManager.renameConversation(request.conversationId, request.title);
     return persistConversations();
   });
 
   ipcMain.handle(ipcChannels.conversationDelete, async (_event, conversationId: string) => {
+    await ensureConversationsLoaded();
     conversationManager.deleteConversation(conversationId);
     if (conversationManager.conversationCount() === 0) {
       conversationManager.createConversation({ title: '' });
@@ -210,6 +224,7 @@ export const registerAppIpcHandlers = (config: RuntimeConfig): void => {
   });
 
   ipcMain.handle(ipcChannels.assistantSendMessage, async (_event, request: AssistantMessageRequest) => {
+    await ensureConversationsLoaded();
     const text = await generateAssistantResponse(request.message, request.conversationId);
     await persistConversations();
     return { text };

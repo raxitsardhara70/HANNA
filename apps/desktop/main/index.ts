@@ -12,6 +12,10 @@ let voiceManager: VoiceManager | null = null;
 
 app.on('ready', () => {
   voiceManager = new VoiceManager(session.defaultSession, config.logLevel);
+
+const voiceManager = new VoiceManager(session.defaultSession, config.logLevel);
+
+app.on('ready', () => {
   voiceManager.registerPermissionHandlers();
   registerVoiceIpcHandlers(voiceManager);
   registerAppIpcHandlers(config);
@@ -22,6 +26,8 @@ app.on('before-quit', () => {
   unregisterVoiceIpcHandlers();
   voiceManager?.dispose();
   voiceManager = null;
+
+  voiceManager.dispose();
 });
 
 app.on('window-all-closed', () => {

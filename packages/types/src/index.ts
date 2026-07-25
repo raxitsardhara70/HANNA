@@ -141,12 +141,27 @@ export interface AssistantStreamController {
   readonly done: Promise<void>;
   readonly cancel: () => void;
 }
+export type VoiceNativePermissionState = 'unknown' | 'granted' | 'denied';
+
+export interface VoiceNativePermissionSnapshot {
+  readonly microphone: VoiceNativePermissionState;
+}
+
+export interface VoiceNativeDeviceSnapshot {
+  readonly hasMediaDevices: boolean;
+}
 
 export interface HannaApi {
   readonly app: {
     readonly getMetadata: () => Promise<AppMetadata>;
     readonly getConfig: () => Promise<RuntimeConfig>;
     readonly getSystemSnapshot: () => Promise<SystemSnapshot>;
+  };
+
+  readonly voice: {
+    readonly getPermissionSnapshot: () => Promise<VoiceNativePermissionSnapshot>;
+    readonly revokePermission: () => Promise<VoiceNativePermissionSnapshot>;
+    readonly getDeviceSnapshot: () => Promise<VoiceNativeDeviceSnapshot>;
   };
 
   readonly assistant: {

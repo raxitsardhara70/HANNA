@@ -9,10 +9,14 @@ import { VoiceBar } from "./components/VoiceBar/VoiceBar";
 import { ChatPanel } from "./components/ChatPanel/ChatPanel";
 import { ChatInput } from "./components/ChatInput/ChatInput";
 import { MicButton } from "./components/MicButton/MicButton";
+import { VoiceConversationBridge } from "../voice/VoiceConversationBridge";
+import { VoiceProvider } from "../voice/VoiceProvider";
 
 export function HannaLivePage() {
     return (
         <AIStateProvider>
+            <VoiceProvider>
+                <VoiceConversationBridge />
             <div className={styles.page}>
                 <aside className={styles.leftPanel}>
                     <LeftPanel />
@@ -44,6 +48,7 @@ export function HannaLivePage() {
                     <ChatInput />
                 </footer>
             </div>
+        </VoiceProvider>
         </AIStateProvider>
     );
 }

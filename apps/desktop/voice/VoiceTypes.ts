@@ -1,3 +1,6 @@
+import type { SpeechManagerSnapshot } from './SpeechManager';
+import type { SpeechRecognitionSnapshot } from './SpeechRecognitionState';
+
 export type VoiceState = 'idle' | 'requestingPermission' | 'listening' | 'processing' | 'speaking' | 'muted' | 'disabled' | 'error';
 
 export type VoicePermissionState = 'unknown' | 'prompt' | 'granted' | 'denied' | 'revoked';
@@ -16,6 +19,18 @@ export interface VoiceSettings {
   readonly echoCancellation: boolean;
   readonly autoGainControl: boolean;
   readonly pushToTalk: boolean;
+  readonly autoSend: boolean;
+  readonly outputDeviceId: string | null;
+  readonly volume: number;
+  readonly speechSpeed: number;
+  readonly voiceId: string | null;
+  readonly language: string;
+  readonly continuousMode: boolean;
+}
+
+
+
+
 }
 
 export interface VoiceError {
@@ -31,6 +46,12 @@ export interface VoiceSnapshot {
   readonly activeSessionId: string | null;
   readonly audioLevel: number;
   readonly error: VoiceError | null;
+  readonly speechRecognition: SpeechRecognitionSnapshot;
+  readonly speech: SpeechManagerSnapshot;
+}
+
+
+
 }
 
 export interface VoiceContextValue extends VoiceSnapshot {
@@ -44,6 +65,13 @@ export interface VoiceContextValue extends VoiceSnapshot {
   readonly mute: () => Promise<void>;
   readonly unmute: () => Promise<void>;
   readonly updateSettings: (settings: Partial<VoiceSettings>) => Promise<void>;
+  readonly partialTranscript: string;
+  readonly finalTranscript: string;
+  readonly clearTranscript: () => void;
+}
+
+
+
 }
 
 export interface SpeechToTextProvider {

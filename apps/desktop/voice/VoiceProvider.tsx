@@ -40,6 +40,11 @@ export function VoiceProvider({ children }: PropsWithChildren) {
   const value = useMemo<VoiceContextValue>(() => ({
     ...snapshot,
     cancelListening: async () => serviceRef.current?.cancel(),
+    clearTranscript: () => { serviceRef.current?.clearTranscript(); setSnapshot(serviceRef.current?.getSnapshot() ?? snapshot); },
+    finalTranscript: snapshot.speechRecognition.finalTranscript,
+    mute: async () => updateSettings({ muted: true }),
+    refresh,
+    partialTranscript: snapshot.speechRecognition.partialTranscript,
     mute: async () => updateSettings({ muted: true }),
     refresh,
     requestPermission: async () => serviceRef.current?.requestPermission(),

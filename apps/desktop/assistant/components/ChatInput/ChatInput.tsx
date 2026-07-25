@@ -1,11 +1,20 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useAIState } from '../../state/useAIState';
+import { useVoice } from '../../../voice/VoiceHooks';
 import styles from './ChatInput.module.css';
 
 export function ChatInput() {
   const [text, setText] = useState('');
   const { isStreaming, sendMessage, stopGeneration } = useAIState();
+  const voice = useVoice();
+
+  useEffect(() => {
+    const transcript = voice.finalTranscript.trim();
+    if (!voice.settings.autoSend && transcript.length > 0) {
+      setText(transcript);
+    }
+  }, [voice.finalTranscript, voice.settings.autoSend]);
 
   const submitMessage = async (): Promise<void> => {
     const value = text.trim();
@@ -15,6 +24,7 @@ export function ChatInput() {
     }
 
     setText('');
+    voice.clearTranscript();
     await sendMessage(value);
   };
 

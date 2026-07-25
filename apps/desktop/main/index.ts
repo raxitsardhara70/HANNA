@@ -13,6 +13,7 @@ let voiceManager: VoiceManager | null = null;
 app.on('ready', () => {
   voiceManager = new VoiceManager(session.defaultSession, config.logLevel);
 
+
 const voiceManager = new VoiceManager(session.defaultSession, config.logLevel);
 
 app.on('ready', () => {
@@ -26,6 +27,7 @@ app.on('before-quit', () => {
   unregisterVoiceIpcHandlers();
   voiceManager?.dispose();
   voiceManager = null;
+
 
   voiceManager.dispose();
 });

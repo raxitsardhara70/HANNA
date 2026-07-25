@@ -23,6 +23,29 @@ export function VoiceBar() {
         ))}
       </div>
 
+      <div className={styles.transcript}>
+        {voice.partialTranscript || voice.finalTranscript || 'Speech transcript will appear here.'}
+      </div>
+
+      <div className={styles.controls}>
+        <label>
+          Language
+          <input value={voice.speechRecognition.settings.language} onChange={(event) => { void voice.updateSettings({ language: event.target.value }); }} />
+        </label>
+        <label>
+          <input type="checkbox" checked={voice.settings.autoSend} onChange={(event) => { void voice.updateSettings({ autoSend: event.target.checked }); }} />
+          Auto Send
+        </label>
+        <label>
+          <input type="checkbox" checked={voice.speechRecognition.settings.continuous} onChange={(event) => { void voice.updateSettings({ continuousMode: event.target.checked }); }} />
+          Continuous
+        </label>
+      </div>
+
+      <div className={styles.meta}>
+        <span>Permission: {voice.permission}</span>
+        <span>Recognition: {voice.speechRecognition.state}</span>
+        <span>Confidence: {String(Math.round(voice.speechRecognition.confidence * 100))}%</span>
       <div className={styles.meta}>
         <span>Permission: {voice.permission}</span>
         <span>Device: {voice.devices.find((device) => device.deviceId === voice.settings.inputDeviceId)?.label ?? voice.devices[0]?.label ?? 'Unavailable'}</span>

@@ -7,3 +7,7 @@
 .meta{color:#8ea8c5;font-size:12px;}
 .container[data-state='error']{border-color:rgba(248,113,113,.45);}
 .container[data-state='muted'] .meter span,.container[data-state='disabled'] .meter span{background:#64748b;box-shadow:none;}
+.transcript{min-height:22px;color:#e0f2fe;font-size:13px;text-align:center;}
+.controls{align-items:center;display:flex;flex-wrap:wrap;gap:12px;justify-content:center;color:#9cc9df;font-size:12px;}
+.controls label{align-items:center;display:flex;gap:6px;}
+.controls input{background:#0f172a;border:1px solid #244560;border-radius:8px;color:#e5f8ff;padding:5px 8px;}

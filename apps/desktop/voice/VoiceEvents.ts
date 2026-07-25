@@ -1,3 +1,5 @@
+import type { SpeechRecognitionResult } from './SpeechRecognitionTypes';
+
 import type { VoiceError, VoiceInputDevice, VoicePermissionState, VoiceSettings, VoiceState } from './VoiceTypes';
 
 export type VoiceEvent =
@@ -13,6 +15,8 @@ export type VoiceEvent =
   | { readonly type: 'VoiceStateChanged'; readonly timestamp: number; readonly state: VoiceState }
   | { readonly type: 'VoiceSettingsChanged'; readonly timestamp: number; readonly settings: VoiceSettings }
   | { readonly type: 'VoicePermissionChanged'; readonly timestamp: number; readonly permission: VoicePermissionState }
+  | { readonly type: 'SpeechFinalResult'; readonly timestamp: number; readonly result: SpeechRecognitionResult }
+
   | { readonly type: 'VoiceError'; readonly timestamp: number; readonly error: VoiceError };
 
 export type VoiceEventHandler = (event: VoiceEvent) => void;

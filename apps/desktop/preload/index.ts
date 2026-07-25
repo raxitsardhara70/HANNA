@@ -16,6 +16,12 @@ const api: HannaApi = {
     getSystemSnapshot: () => ipcRenderer.invoke(ipcChannels.appGetSystemSnapshot),
   },
 
+  voice: {
+    getPermissionSnapshot: () => ipcRenderer.invoke(ipcChannels.voiceGetPermissionSnapshot),
+    revokePermission: () => ipcRenderer.invoke(ipcChannels.voiceRevokePermission),
+    getDeviceSnapshot: () => ipcRenderer.invoke(ipcChannels.voiceGetDeviceSnapshot),
+  },
+
   assistant: {
     listConversations: () => ipcRenderer.invoke(ipcChannels.conversationList),
     createConversation: () => ipcRenderer.invoke(ipcChannels.conversationCreate),

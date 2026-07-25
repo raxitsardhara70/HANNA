@@ -8,6 +8,8 @@ import type {
   AssistantStreamRequest,
   ConversationSnapshot,
   RenameConversationRequest,
+  VoiceNativeDeviceSnapshot,
+  VoiceNativePermissionSnapshot,
 } from '@hanna/types';
 
 export const ipcChannels = {
@@ -23,6 +25,9 @@ export const ipcChannels = {
   conversationSelect: 'conversation:select',
   conversationRename: 'conversation:rename',
   conversationDelete: 'conversation:delete',
+  voiceGetPermissionSnapshot: 'voice:get-permission-snapshot',
+  voiceRevokePermission: 'voice:revoke-permission',
+  voiceGetDeviceSnapshot: 'voice:get-device-snapshot',
 } as const;
 
 export interface IpcRequestMap {
@@ -78,6 +83,18 @@ export interface IpcRequestMap {
   readonly [ipcChannels.conversationDelete]: {
     readonly request: string;
     readonly response: ConversationSnapshot;
+  };
+
+  readonly [ipcChannels.voiceGetPermissionSnapshot]: {
+    readonly response: VoiceNativePermissionSnapshot;
+  };
+
+  readonly [ipcChannels.voiceRevokePermission]: {
+    readonly response: VoiceNativePermissionSnapshot;
+  };
+
+  readonly [ipcChannels.voiceGetDeviceSnapshot]: {
+    readonly response: VoiceNativeDeviceSnapshot;
   };
 
 }

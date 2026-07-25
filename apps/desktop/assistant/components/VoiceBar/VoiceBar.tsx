@@ -46,6 +46,8 @@ export function VoiceBar() {
         <span>Permission: {voice.permission}</span>
         <span>Recognition: {voice.speechRecognition.state}</span>
         <span>Confidence: {String(Math.round(voice.speechRecognition.confidence * 100))}%</span>
+      <div className={styles.meta}>
+        <span>Permission: {voice.permission}</span>
         <span>Device: {voice.devices.find((device) => device.deviceId === voice.settings.inputDeviceId)?.label ?? voice.devices[0]?.label ?? 'Unavailable'}</span>
       </div>
     </section>

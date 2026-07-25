@@ -45,6 +45,8 @@ export function VoiceProvider({ children }: PropsWithChildren) {
     mute: async () => updateSettings({ muted: true }),
     refresh,
     partialTranscript: snapshot.speechRecognition.partialTranscript,
+    mute: async () => updateSettings({ muted: true }),
+    refresh,
     requestPermission: async () => serviceRef.current?.requestPermission(),
     revokePermission: async () => serviceRef.current?.revokePermission(),
     startListening: async () => serviceRef.current?.start(),

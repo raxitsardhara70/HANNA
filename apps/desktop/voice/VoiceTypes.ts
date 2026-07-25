@@ -30,6 +30,9 @@ export interface VoiceSettings {
 
 
 
+
+}
+
 export interface VoiceError {
   readonly code: 'permissionDenied' | 'permissionRevoked' | 'microphoneUnavailable' | 'microphoneInUse' | 'sessionAlreadyActive' | 'deviceDisconnected' | 'unknown';
   readonly message: string;
@@ -48,6 +51,9 @@ export interface VoiceSnapshot {
 }
 
 
+
+}
+
 export interface VoiceContextValue extends VoiceSnapshot {
   readonly refresh: () => Promise<void>;
   readonly requestPermission: () => Promise<void>;
@@ -64,6 +70,9 @@ export interface VoiceContextValue extends VoiceSnapshot {
   readonly clearTranscript: () => void;
 }
 
+
+
+}
 
 export interface SpeechToTextProvider {
   readonly transcribe: (stream: MediaStream, signal: AbortSignal) => Promise<string>;

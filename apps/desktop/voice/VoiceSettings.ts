@@ -17,6 +17,7 @@ export const defaultVoiceSettings: VoiceSettings = {
   voiceId: null,
   language: 'en-US',
   continuousMode: false,
+
 };
 
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null;
@@ -44,6 +45,7 @@ export class VoiceSettingsStore {
         voiceId: typeof parsed.voiceId === 'string' ? parsed.voiceId : null,
         language: typeof parsed.language === 'string' && parsed.language.trim().length > 0 ? parsed.language : defaultVoiceSettings.language,
         continuousMode: typeof parsed.continuousMode === 'boolean' ? parsed.continuousMode : defaultVoiceSettings.continuousMode,
+
       };
     } catch {
       return defaultVoiceSettings;

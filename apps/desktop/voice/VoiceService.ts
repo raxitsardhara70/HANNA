@@ -3,6 +3,7 @@ import { PermissionManager } from './PermissionManager';
 import { VoiceSession } from './VoiceSession';
 import { SpeechManager } from './SpeechManager';
 import { SpeechRecognitionService } from './SpeechRecognitionService';
+
 import { VoiceIPC } from './VoiceIPC';
 import type { VoiceEvent, VoiceEventHandler } from './VoiceEvents';
 import { createInitialVoiceSnapshot } from './VoiceState';
@@ -25,6 +26,7 @@ export class VoiceService {
   private readonly settingsStore = new VoiceSettingsStore();
   private readonly speechRecognition = new SpeechRecognitionService();
   private readonly speech = new SpeechManager();
+
   private readonly listeners = new Set<VoiceEventHandler>();
   private snapshot: VoiceSnapshot = createInitialVoiceSnapshot(defaultVoiceSettings);
   private session: VoiceSession | null = null;
@@ -32,6 +34,7 @@ export class VoiceService {
   async initialize(): Promise<VoiceSnapshot> {
     const settings = this.settingsStore.load();
     const nativePermission = await this.ipc.getPermissionSnapshot();
+ codex/implement-production-voice-foundation-kpmage
     this.snapshot = {
       ...createInitialVoiceSnapshot(settings),
       devices: await this.microphone.listDevices(),
@@ -40,6 +43,9 @@ export class VoiceService {
       speechRecognition: this.speechRecognition.initialize(),
     };
     this.speechRecognition.subscribe((event) => { this.handleSpeechRecognitionEvent(event); });
+
+    this.snapshot = { ...createInitialVoiceSnapshot(settings), permission: nativePermission.microphone === 'unknown' ? await this.permissions.query() : nativePermission.microphone, devices: await this.microphone.listDevices() };
+
     navigator.mediaDevices.addEventListener('devicechange', this.handleDeviceChange);
     return this.snapshot;
   }
@@ -88,6 +94,7 @@ export class VoiceService {
       await session.start((level) => { this.updateAudioLevel(level); }, () => { this.handleDisconnected(); });
       this.speechRecognition.start();
       this.setSnapshot({ activeSessionId: session.id, error: null, speechRecognition: this.speechRecognition.getSnapshot(), state: 'listening' });
+      this.setSnapshot({ activeSessionId: session.id, error: null, state: 'listening' });
       this.emit({ sessionId: session.id, timestamp: Date.now(), type: 'ListeningStarted' });
     } catch (error) { this.handleError(toVoiceError(error)); }
   }
@@ -100,6 +107,9 @@ export class VoiceService {
     this.speechRecognition.stop();
     this.disposeSession();
     this.setSnapshot({ activeSessionId: null, audioLevel: 0, speechRecognition: this.speechRecognition.getSnapshot(), state: this.snapshot.settings.muted ? 'muted' : 'idle' });
+
+    this.disposeSession();
+    this.setSnapshot({ activeSessionId: null, audioLevel: 0, state: this.snapshot.settings.muted ? 'muted' : 'idle' });
     if (id !== undefined) this.emit({ sessionId: id, timestamp: Date.now(), type: 'ListeningStopped' });
     return Promise.resolve();
   }
@@ -109,6 +119,8 @@ export class VoiceService {
     this.speechRecognition.cancel();
     this.disposeSession();
     this.setSnapshot({ activeSessionId: null, audioLevel: 0, speechRecognition: this.speechRecognition.getSnapshot(), state: this.snapshot.settings.muted ? 'muted' : 'idle' });
+    this.disposeSession();
+    this.setSnapshot({ activeSessionId: null, audioLevel: 0, state: this.snapshot.settings.muted ? 'muted' : 'idle' });
     if (id !== undefined) this.emit({ sessionId: id, timestamp: Date.now(), type: 'ListeningCancelled' });
     return Promise.resolve();
   }
@@ -126,6 +138,10 @@ export class VoiceService {
     this.settingsStore.save(settings);
     this.session?.setSettings(settings);
     this.speechRecognition.updateSettings({ continuous: settings.continuousMode, language: settings.language });
+
+    const settings = { ...this.snapshot.settings, ...patch, inputGain: Math.min(2, Math.max(0, patch.inputGain ?? this.snapshot.settings.inputGain)) };
+    this.settingsStore.save(settings);
+    this.session?.setSettings(settings);
     this.setSnapshot({ settings, state: settings.muted ? 'muted' : this.session === null ? 'idle' : 'listening' });
     this.emit({ settings, timestamp: Date.now(), type: 'VoiceSettingsChanged' });
     if (settings.muted) await this.stop();
@@ -136,6 +152,7 @@ export class VoiceService {
     this.disposeSession();
     this.speechRecognition.dispose();
     this.speech.stopSpeaking();
+
     this.listeners.clear();
   }
 
@@ -174,6 +191,8 @@ export class VoiceService {
     }
   }
 
+
+ 
   private handleDisconnected(): void {
     this.disposeSession();
     this.setSnapshot({ activeSessionId: null, audioLevel: 0, error: { code: 'deviceDisconnected', message: 'Microphone disconnected.' }, state: 'error' });

@@ -30,7 +30,7 @@ export function AIStateProvider({ children }: PropsWithChildren) {
   const provider = useAssistantProvider();
   const activeRequestRef = useRef<AbortController | null>(null);
   const stateRevisionRef = useRef(0);
-  const [state, setState] = useState<AIState>(initialAssistantState.state);
+  const [state, setState] = useState<AIState>initialAssistantState.state);
   const [conversations, setConversations] = useState<ConversationSummary[]>(initialAssistantState.conversations);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(initialAssistantState.activeConversationId);
   const [messages, setMessages] = useState<ChatMessage[]>(initialAssistantState.messages);
@@ -83,6 +83,7 @@ export function AIStateProvider({ children }: PropsWithChildren) {
 
   const deleteConversation = useCallback(async (conversationId: string) => {
     stateRevisionRef.current += 1;
+
 
     if (conversationId === activeConversationId) {
       activeRequestRef.current?.abort();

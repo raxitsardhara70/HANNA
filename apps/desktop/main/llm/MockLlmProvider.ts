@@ -1,7 +1,6 @@
 import type { LlmPrompt } from '../assistant/prompt/Prompt.js';
 import { streamText } from '../assistant/streamText.js';
 import type { LlmProvider, LlmStreamOptions } from './LlmProvider.js';
-import type { LlmProvider } from './LlmProvider.js';
 
 export class MockLlmProvider implements LlmProvider {
   generate(prompt: LlmPrompt): Promise<string> {

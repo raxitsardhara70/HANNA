@@ -10,12 +10,6 @@ import {
   type ChatMessage,
   type ConversationSummary,
 } from '../types/assistant';
-=======
-import { useCallback, useEffect, useMemo, useState, type PropsWithChildren } from 'react';
-import type { ConversationSnapshot } from '@hanna/types';
-
-import { useAssistantProvider } from '../providers/useAssistantProvider';
-import { conversationToMessages, conversationToSummary, type AIState, type AssistantContextValue, type ChatMessage, type ConversationSummary } from '../types/assistant';
 import { initialAssistantState } from './AIState';
 import { AIStateContext } from './AIStateContextValue';
 
@@ -35,10 +29,6 @@ function findLastUserMessage(messages: readonly ChatMessage[]): ChatMessage | nu
 export function AIStateProvider({ children }: PropsWithChildren) {
   const provider = useAssistantProvider();
   const activeRequestRef = useRef<AbortController | null>(null);
-
-
-export function AIStateProvider({ children }: PropsWithChildren) {
-  const provider = useAssistantProvider();
   const [state, setState] = useState<AIState>(initialAssistantState.state);
   const [conversations, setConversations] = useState<ConversationSummary[]>(initialAssistantState.conversations);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(initialAssistantState.activeConversationId);
@@ -67,9 +57,8 @@ export function AIStateProvider({ children }: PropsWithChildren) {
   }, [loadConversations]);
 
   const createConversation = useCallback(async () => {
-    if (activeRequestRef.current !== null) {
-      activeRequestRef.current.abort();
-    }
+    activeRequestRef.current?.abort();
+    activeRequestRef.current = null;
     applySnapshot(await provider.createConversation());
   }, [applySnapshot, provider]);
 
@@ -82,47 +71,13 @@ export function AIStateProvider({ children }: PropsWithChildren) {
   }, [applySnapshot, provider]);
 
   const deleteConversation = useCallback(async (conversationId: string) => {
-    if (conversationId === activeConversationId && activeRequestRef.current !== null) {
-      activeRequestRef.current.abort();
+    if (conversationId === activeConversationId) {
+      activeRequestRef.current?.abort();
+      activeRequestRef.current = null;
     }
+
     applySnapshot(await provider.deleteConversation(conversationId));
   }, [activeConversationId, applySnapshot, provider]);
-
-  const applySnapshot = useCallback((snapshot: ConversationSnapshot) => {
-    setConversations(toSummaries(snapshot));
-    setActiveConversationId(snapshot.activeConversationId);
-    setMessages(findActiveMessages(snapshot));
-  }, []);
-
-  const loadConversations = useCallback(async () => {
-    setState('loading');
-    try {
-      applySnapshot(await provider.listConversations());
-      setState('ready');
-    } catch {
-      setState('error');
-    }
-  }, [applySnapshot, provider]);
-
-  useEffect(() => {
-    void loadConversations();
-  }, [loadConversations]);
-
-  const createConversation = useCallback(async () => {
-    applySnapshot(await provider.createConversation());
-  }, [applySnapshot, provider]);
-
-  const selectConversation = useCallback(async (conversationId: string) => {
-    applySnapshot(await provider.selectConversation(conversationId));
-  }, [applySnapshot, provider]);
-
-  const renameConversation = useCallback(async (conversationId: string, title: string) => {
-    applySnapshot(await provider.renameConversation(conversationId, title));
-  }, [applySnapshot, provider]);
-
-  const deleteConversation = useCallback(async (conversationId: string) => {
-    applySnapshot(await provider.deleteConversation(conversationId));
-  }, [applySnapshot, provider]);
 
   const addMessage = useCallback((message: ChatMessage) => {
     setMessages((previous) => [...previous, message]);
@@ -221,7 +176,6 @@ export function AIStateProvider({ children }: PropsWithChildren) {
     }
   }, [messages]);
 
-
   const value = useMemo<AssistantContextValue>(() => ({
     state,
     conversations,
@@ -229,7 +183,6 @@ export function AIStateProvider({ children }: PropsWithChildren) {
     messages,
     isMuted,
     isStreaming,
-
     setState,
     setMuted,
     loadConversations,
@@ -242,7 +195,6 @@ export function AIStateProvider({ children }: PropsWithChildren) {
     retryLastMessage,
     regenerateResponse,
     copyResponse,
-
     addMessage,
     appendToMessage,
     updateMessage,
@@ -250,7 +202,6 @@ export function AIStateProvider({ children }: PropsWithChildren) {
     markMessageError,
     clearMessages,
   }), [state, conversations, activeConversationId, messages, isMuted, isStreaming, loadConversations, createConversation, selectConversation, renameConversation, deleteConversation, sendMessage, stopGeneration, retryLastMessage, regenerateResponse, copyResponse, addMessage, appendToMessage, updateMessage, finalizeMessage, markMessageError, clearMessages]);
-  }), [state, conversations, activeConversationId, messages, isMuted, loadConversations, createConversation, selectConversation, renameConversation, deleteConversation, addMessage, appendToMessage, updateMessage, finalizeMessage, markMessageError, clearMessages]);
 
   return <AIStateContext.Provider value={value}>{children}</AIStateContext.Provider>;
 }

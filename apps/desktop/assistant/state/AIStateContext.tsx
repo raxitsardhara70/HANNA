@@ -29,7 +29,8 @@ function findLastUserMessage(messages: readonly ChatMessage[]): ChatMessage | nu
 export function AIStateProvider({ children }: PropsWithChildren) {
   const provider = useAssistantProvider();
   const activeRequestRef = useRef<AbortController | null>(null);
-  const [state, setState] = useState<AIState>(initialAssistantState.state);
+  const stateRevisionRef = useRef(0);
+  const [state, setState] = useState<AIState>initialAssistantState.state);
   const [conversations, setConversations] = useState<ConversationSummary[]>(initialAssistantState.conversations);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(initialAssistantState.activeConversationId);
   const [messages, setMessages] = useState<ChatMessage[]>(initialAssistantState.messages);
@@ -43,12 +44,19 @@ export function AIStateProvider({ children }: PropsWithChildren) {
   }, []);
 
   const loadConversations = useCallback(async () => {
+    const revision = stateRevisionRef.current;
     setState('loading');
     try {
-      applySnapshot(await provider.listConversations());
-      setState('ready');
+      const snapshot = await provider.listConversations();
+
+      if (revision === stateRevisionRef.current) {
+        applySnapshot(snapshot);
+        setState('ready');
+      }
     } catch {
-      setState('error');
+      if (revision === stateRevisionRef.current) {
+        setState('error');
+      }
     }
   }, [applySnapshot, provider]);
 
@@ -57,20 +65,26 @@ export function AIStateProvider({ children }: PropsWithChildren) {
   }, [loadConversations]);
 
   const createConversation = useCallback(async () => {
+    stateRevisionRef.current += 1;
     activeRequestRef.current?.abort();
     activeRequestRef.current = null;
     applySnapshot(await provider.createConversation());
   }, [applySnapshot, provider]);
 
   const selectConversation = useCallback(async (conversationId: string) => {
+    stateRevisionRef.current += 1;
     applySnapshot(await provider.selectConversation(conversationId));
   }, [applySnapshot, provider]);
 
   const renameConversation = useCallback(async (conversationId: string, title: string) => {
+    stateRevisionRef.current += 1;
     applySnapshot(await provider.renameConversation(conversationId, title));
   }, [applySnapshot, provider]);
 
   const deleteConversation = useCallback(async (conversationId: string) => {
+    stateRevisionRef.current += 1;
+
+
     if (conversationId === activeConversationId) {
       activeRequestRef.current?.abort();
       activeRequestRef.current = null;
@@ -110,6 +124,8 @@ export function AIStateProvider({ children }: PropsWithChildren) {
       return;
     }
 
+    stateRevisionRef.current += 1;
+    const requestRevision = stateRevisionRef.current;
     const abortController = new AbortController();
     activeRequestRef.current = abortController;
     setStreaming(true);
@@ -134,8 +150,12 @@ export function AIStateProvider({ children }: PropsWithChildren) {
       });
 
       if (!abortController.signal.aborted) {
-        await loadConversations();
-        setState('ready');
+        const snapshot = await provider.listConversations();
+
+        if (requestRevision === stateRevisionRef.current) {
+          applySnapshot(snapshot);
+          setState('ready');
+        }
       }
     } catch {
       setState('error');
@@ -143,7 +163,7 @@ export function AIStateProvider({ children }: PropsWithChildren) {
       activeRequestRef.current = null;
       setStreaming(false);
     }
-  }, [activeConversationId, addMessage, appendToMessage, finalizeMessage, loadConversations, markMessageError, provider]);
+  }, [activeConversationId, addMessage, appendToMessage, applySnapshot, finalizeMessage, markMessageError, provider]);
 
   const stopGeneration = useCallback(() => {
     activeRequestRef.current?.abort();

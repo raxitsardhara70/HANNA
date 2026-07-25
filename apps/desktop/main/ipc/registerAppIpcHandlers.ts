@@ -120,8 +120,6 @@ const startAssistantStream = async (
         continue;
       }
 
-
-    for await (const chunk of streamAssistantResponse(request.message, abortController.signal, request.conversationId)) {
       sendStreamEvent(sender, {
         chunk: update.chunk,
         messageId: update.messageId,
